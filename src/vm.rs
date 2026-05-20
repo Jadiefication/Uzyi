@@ -5,7 +5,9 @@ struct VM {
     registers: [i8; REGISTERS],
     memory: [u8; MEM_SIZE],
     counter: usize,
-    running: bool
+    running: bool,
+    cf: bool,
+    zf: bool
 }
 
 impl VM {
@@ -14,7 +16,9 @@ impl VM {
             registers: [0; 8],
             memory: instructions,
             counter: 0,
-            running: true
+            running: true,
+            cf: false,
+            zf: false
         }
     }
 }
