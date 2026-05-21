@@ -3,7 +3,7 @@ use crate::vm::{VM};
 
 fn empty(_vm: &mut VM) {}
 
-static TABLE: LazyLock<[fn(&mut VM); 256]> = LazyLock::new(|| {
+pub static TABLE: LazyLock<[fn(&mut VM); 256]> = LazyLock::new(|| {
     let mut table = [empty as fn(&mut VM); 256];
 
     table[0] = mov;

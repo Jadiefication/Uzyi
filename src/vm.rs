@@ -1,3 +1,5 @@
+use crate::dispatch::TABLE;
+
 const REGISTERS: usize = 8;
 const MEM_SIZE: usize = 256;
 
@@ -19,6 +21,19 @@ impl VM {
             running: true,
             cf: false,
             zf: false
+        }
+    }
+
+    fn run(&mut self) {
+        while self.running {
+            let instruction = self.memory[self.counter];
+            self.counter += 1;
+
+            if self.counter >= MEM_SIZE {
+                panic!("Out of bounds")
+            }
+
+            TABLE[instruction as usize](self)
         }
     }
 }
