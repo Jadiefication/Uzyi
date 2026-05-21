@@ -1,13 +1,13 @@
 const REGISTERS: usize = 8;
 const MEM_SIZE: usize = 256;
 
-struct VM {
-    registers: [i8; REGISTERS],
-    memory: [u8; MEM_SIZE],
-    counter: usize,
-    running: bool,
-    cf: bool,
-    zf: bool
+pub struct VM {
+    pub registers: [i8; REGISTERS],
+    pub memory: [u8; MEM_SIZE],
+    pub counter: usize,
+    pub running: bool,
+    pub cf: bool,
+    pub zf: bool
 }
 
 impl VM {
