@@ -1,4 +1,4 @@
-use crate::instructions::{ADD, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CMP, DEC, DIV, HLT, INC, LOAD, MOV, MOVR, MUL, NOT, OR, POP, PUSH, SHL, SHR, STORE, SUB, XOR};
+use crate::instructions::{ADD, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, MOV, MOVR, MUL, NOT, OR, POP, PUSH, RET, SHL, SHR, STORE, SUB, XOR};
 use crate::vm::VM;
 use std::sync::LazyLock;
 
@@ -35,6 +35,8 @@ pub static TABLE: LazyLock<[fn(&mut VM); 256]> = LazyLock::new(|| {
 
     table[PUSH] = push;
     table[POP] = pop;
+    table[CALL] = call;
+    table[RET] = ret;
 
     table[HLT] = hlt;
 
@@ -227,6 +229,9 @@ fn b(vm: &mut VM) {
 }
 
 fn push(vm: &mut VM) {
+    if (vm.get_reg(7) as usize) & 0xFF == vm.memory.len() + 1 {
+        panic!("VM close to instructions")
+    }
     let value = vm.get_mem(vm.counter);
     vm.counter += 1;
     vm.memory[(vm.get_reg(7) as usize) & 0xFF] = value;
@@ -234,10 +239,32 @@ fn push(vm: &mut VM) {
 }
 
 fn pop(vm: &mut VM) {
+    if (vm.get_reg(7) as usize) & 0xFF == 255 {
+        panic!("VM at top of stack")
+    }
     let register = vm.get_mem(vm.counter);
     vm.counter += 1;
     vm.registers[7] += 1;
     vm.registers[register as usize] = vm.get_mem((vm.get_reg(7) as usize) & 0xFF) as i8;
+}
+
+fn call(vm: &mut VM) {
+    let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
+    if (vm.get_reg(7) as usize) & 0xFF == vm.memory.len() + 1 {
+        panic!("VM close to instructions")
+    }
+    vm.memory[(vm.get_reg(7) as usize) & 0xFF] = vm.counter as u8;
+    vm.registers[7] -= 1;
+    vm.counter = address as usize;
+}
+
+fn ret(vm: &mut VM) {
+    if (vm.get_reg(7) as usize) & 0xFF == 255 {
+        panic!("VM at top of stack")
+    }
+    vm.registers[7] += 1;
+    vm.counter = vm.memory[(vm.get_reg(7) as usize) & 0xFF] as usize;
 }
 
 fn hlt(vm: &mut VM) {

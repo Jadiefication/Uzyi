@@ -30,5 +30,7 @@ pub const B: usize = 0x16;
 
 pub const PUSH: usize = 0x17;
 pub const POP: usize = 0x18;
+pub const CALL: usize = 0x19;
+pub const RET: usize = 0x1A;
 
 pub const HLT: usize = 0xFF;
