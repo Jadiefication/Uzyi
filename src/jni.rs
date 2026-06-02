@@ -1,7 +1,6 @@
-use jni::EnvUnowned;
-use jni::objects::{JByteArray, JClass, JObject};
-use jni::sys::{jlong, JNIEnv, JavaVM};
 use crate::vm::VM;
+use jni::objects::{JByteArray, JClass, JObject};
+use jni::EnvUnowned;
 
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_VmWrapper_loadCodes<'caller>(
