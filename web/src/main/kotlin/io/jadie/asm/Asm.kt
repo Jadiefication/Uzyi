@@ -108,11 +108,15 @@ data class Asm(
     }
 
     infix fun call(address: Byte) {
-        data.addAll(listOf(0x19, register))
+        data.addAll(listOf(0x19, address))
     }
 
     fun ret() {
         data.add(0x1A)
+    }
+
+    fun currentAddress(): Int {
+        return data.size
     }
 }
 

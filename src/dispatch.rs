@@ -170,62 +170,78 @@ fn cmp(vm: &mut VM) {
     vm.cf = false;
     vm.zf = false;
 
-    let result = vm.registers[r_1] - vm.registers[r_2];
-    if result < 0 {
-        vm.cf = true
-    } else if result == 0 {
-        vm.zf = true
+    let val1 = vm.registers[r_1] as u8;
+    let val2 = vm.registers[r_2] as u8;
+
+    if val1 < val2 {
+        vm.cf = true;
+    }
+    if val1 == val2 {
+        vm.zf = true;
     }
 }
 
 fn beq(vm: &mut VM) {
+    let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
+
     if vm.zf {
-        let address = vm.get_mem(vm.counter);
         vm.counter = address as usize;
-    } else {
-        vm.counter += 1;
+        vm.cf = false;
+        vm.zf = false;
     }
 }
 
 fn blo(vm: &mut VM) {
+    let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
+
     if vm.cf {
-        let address = vm.get_mem(vm.counter);
         vm.counter = address as usize;
-    } else {
-        vm.counter += 1;
+        vm.cf = false;
+        vm.zf = false;
     }
 }
 
 fn bhi(vm: &mut VM) {
+    let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
+
     if !vm.cf && !vm.zf {
-        let address = vm.get_mem(vm.counter);
         vm.counter = address as usize;
-    } else {
-        vm.counter += 1;
+        vm.cf = false;
+        vm.zf = false;
     }
 }
 
 fn bleq(vm: &mut VM) {
+    let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
+
     if vm.cf || vm.zf {
-        let address = vm.get_mem(vm.counter);
         vm.counter = address as usize;
-    } else {
-        vm.counter += 1;
+        vm.cf = false;
+        vm.zf = false;
     }
 }
 
 fn bheq(vm: &mut VM) {
+    let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
+
     if !vm.cf || vm.zf {
-        let address = vm.get_mem(vm.counter);
         vm.counter = address as usize;
-    } else {
-        vm.counter += 1;
+        vm.cf = false;
+        vm.zf = false;
     }
 }
 
 fn b(vm: &mut VM) {
     let address = vm.get_mem(vm.counter);
+    vm.counter += 1;
     vm.counter = address as usize;
+    vm.cf = false;
+    vm.zf = false;
 }
 
 fn push(vm: &mut VM) {
