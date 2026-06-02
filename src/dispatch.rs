@@ -38,127 +38,127 @@ pub static TABLE: LazyLock<[fn(&mut VM); 256]> = LazyLock::new(|| {
 });
 
 fn mov(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let value = vm.memory[vm.counter];
+    let value = vm[vm.counter];
     vm.counter += 1;
     vm.registers[r_1] = value as i8;
 }
 
 fn movr(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_2].clone();
 }
 
 fn add(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] + vm.registers[r_2]
 }
 
 fn sub(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] - vm.registers[r_2]
 }
 
 fn mul(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] * vm.registers[r_2]
 }
 
 fn div(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] / vm.registers[r_2]
 }
 
 fn inc(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] += 1
 }
 
 fn dec(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] -= 1
 }
 
 fn and(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] & vm.registers[r_2]
 }
 
 fn or(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] | vm.registers[r_2]
 }
 
 fn not(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = !vm.registers[r_1]
 }
 
 fn xor(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] ^ vm.registers[r_2]
 }
 
 fn shl(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] << 1
 }
 
 fn shr(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.registers[r_1] = vm.registers[r_1] >> 1
 }
 
 fn load(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let address = vm.memory[vm.counter] as usize;
+    let address = vm[vm.counter] as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.memory[address] as i8
+    vm.registers[r_1] = vm[address] as i8
 }
 
 fn store(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let address = vm.memory[vm.counter] as usize;
+    let address = vm[vm.counter] as usize;
     vm.counter += 1;
     vm.memory[address] = vm.registers[r_1] as u8
 }
 
 fn cmp(vm: &mut VM) {
-    let r_1 = vm.memory[vm.counter] as usize;
+    let r_1 = vm[vm.counter] as usize;
     vm.counter += 1;
-    let r_2 = vm.memory[vm.counter] as usize;
+    let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
     let result = vm.registers[r_1] - vm.registers[r_2];
     if result < 0 {
@@ -170,41 +170,41 @@ fn cmp(vm: &mut VM) {
 
 fn beq(vm: &mut VM) {
     if vm.zf {
-        let address = vm.memory[vm.counter];
+        let address = vm[vm.counter];
         vm.counter = address as usize;
     }
 }
 
 fn blo(vm: &mut VM) {
     if vm.cf {
-        let address = vm.memory[vm.counter];
+        let address = vm[vm.counter];
         vm.counter = address as usize;
     }
 }
 
 fn bhi(vm: &mut VM) {
     if !vm.cf && !vm.zf {
-        let address = vm.memory[vm.counter];
+        let address = vm[vm.counter];
         vm.counter = address as usize;
     }
 }
 
 fn bleq(vm: &mut VM) {
     if vm.cf || vm.zf {
-        let address = vm.memory[vm.counter];
+        let address = vm[vm.counter];
         vm.counter = address as usize;
     }
 }
 
 fn bheq(vm: &mut VM) {
     if !vm.cf || vm.zf {
-        let address = vm.memory[vm.counter];
+        let address = vm[vm.counter];
         vm.counter = address as usize;
     }
 }
 
 fn b(vm: &mut VM) {
-    let address = vm.memory[vm.counter];
+    let address = vm[vm.counter];
     vm.counter = address as usize;
 }
 

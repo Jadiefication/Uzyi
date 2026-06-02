@@ -1,3 +1,4 @@
+use std::ops::Index;
 use crate::dispatch::TABLE;
 
 const REGISTERS: usize = 8;
@@ -26,7 +27,7 @@ impl VM {
 
     fn run(&mut self) {
         while self.running {
-            let instruction = self.memory[self.counter];
+            let instruction = self[self.counter];
             self.counter += 1;
 
             if self.counter >= MEM_SIZE {
@@ -34,6 +35,18 @@ impl VM {
             }
 
             TABLE[instruction as usize](self)
+        }
+    }
+}
+
+impl Index<usize> for VM {
+    type Output = u8;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        if index >= MEM_SIZE {
+            panic!("Out of bounds")
+        } else {
+            &self.memory[index]
         }
     }
 }
