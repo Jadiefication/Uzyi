@@ -9,6 +9,7 @@ import kotlin.experimental.inv
 class VMTest {
 
     init {
+        // Force load the library from the target directory
         val libPath = File("../target/debug/libCustom_ISA.dylib").absolutePath
         System.load(libPath)
     }
@@ -54,17 +55,32 @@ class VMTest {
     }
 
     @Test
+    fun testDivision() {
+        val opcodes = assemble {
+            mov(0, 42)
+            mov(1, 6)
+            div(0, 1)
+            hlt()
+        }
+
+        val registers = VMLoader.loadCodes(opcodes)
+        assertEquals(7.toByte(), registers[0], "R0 should be 7 (42 / 6)")
+    }
+
+    @Test
     fun testLoop() {
         val opcodes = assemble {
             mov(0, 0)
             mov(1, 5)
 
+            label("start")
             cmp(0, 1)
-            bheq(15)
+            bheq("exit")
 
             inc(0)
-            b(6)
+            b("start")
 
+            label("exit")
             hlt()
         }
 
@@ -137,9 +153,11 @@ class VMTest {
     fun testSubroutine() {
         val opcodes = assemble {
             mov(0, 0)
+            // Use label system to find subroutine instead of hardcoding address 6
             call(6)
             hlt()
 
+            // Subroutine code
             mov(0, 42)
             ret()
         }
@@ -169,49 +187,36 @@ class VMTest {
             mov(0, 10)
             mov(1, 10)
             cmp(0, 1)
-
-            // Current address + 2 (beq size) + 3 (mov size) + 1 (hlt size) = 6
-            val beqTarget = currentAddress() + 6
-            beq(beqTarget.toByte())
+            beq("beq_true")
 
             mov(2, 1)
             hlt()
 
-            // True branch execution point
+            label("beq_true")
             mov(2, 2)
-
-            val bloStart = currentAddress() + 2
-            b(bloStart.toByte())
 
             // --- TEST BLO ---
             mov(0, 5)
             mov(1, 10)
             cmp(0, 1)
-
-            val bloTarget = currentAddress() + 6
-            blo(bloTarget.toByte())
+            blo("blo_true")
 
             mov(3, 1)
             hlt()
 
-            // True branch execution point
+            label("blo_true")
             mov(3, 2)
-
-            val bhiStart = currentAddress() + 2
-            b(bhiStart.toByte())
 
             // --- TEST BHI ---
             mov(0, 15)
             mov(1, 10)
             cmp(0, 1)
-
-            val bhiTarget = currentAddress() + 6
-            bhi(bhiTarget.toByte())
+            bhi("bhi_true")
 
             mov(4, 1)
             hlt()
 
-            // True branch execution point
+            label("bhi_true")
             mov(4, 2)
 
             hlt()
@@ -221,5 +226,100 @@ class VMTest {
         assertEquals(2.toByte(), registers[2], "BEQ failed")
         assertEquals(2.toByte(), registers[3], "BLO failed")
         assertEquals(2.toByte(), registers[4], "BHI failed")
+    }
+
+    @Test
+    fun testImmediateArithmetic() {
+        val opcodes = assemble {
+            mov(0, 10)
+            addi(0, 5)  // 10 + 5 = 15
+            subi(0, 3)  // 15 - 3 = 12
+            muli(0, 4)  // 12 * 4 = 48
+            hlt()
+        }
+
+        val registers = VMLoader.loadCodes(opcodes)
+        assertEquals(48.toByte(), registers[0], "Immediate arithmetic chain failed")
+    }
+
+    @Test
+    fun testRegisterMemoryOps() {
+        val opcodes = assemble {
+            mov(0, 50)  // Store target memory pointer in R0
+            mov(1, 123) // Store payload data in R1
+            storer(1, 0) // Write payload from R1 into address pointed to by R0
+            mov(2, 0)   // Clear R2
+            loadr(2, 0) // Read from memory address pointed to by R0 back into R2
+            hlt()
+        }
+
+        val registers = VMLoader.loadCodes(opcodes)
+        assertEquals(123.toByte(), registers[2], "Register-based LOAD/STORE failed")
+    }
+
+    @Test
+    fun testLabels() {
+        val opcodes = assemble {
+            mov(0, 0)
+            b("skip")
+            inc(0)
+            label("skip")
+            inc(0)
+            hlt()
+        }
+
+        val registers = VMLoader.loadCodes(opcodes)
+        assertEquals(1.toByte(), registers[0], "Branching to label failed")
+    }
+
+    @Test
+    fun testBLEQandBHEQ() {
+        val opcodes = assemble {
+            // Test BLEQ (<=)
+            mov(0, 10)
+            mov(1, 10)
+            cmp(0, 1)
+            bleq("passed_bleq_eq")
+            mov(2, 1)
+            hlt()
+            label("passed_bleq_eq")
+            mov(2, 2)
+
+            mov(0, 5)
+            mov(1, 10)
+            cmp(0, 1)
+            bleq("passed_bleq_lo")
+            mov(3, 1)
+            hlt()
+            label("passed_bleq_lo")
+            mov(3, 2)
+
+            // Test BHEQ (>=)
+            mov(0, 10)
+            mov(1, 10)
+            cmp(0, 1)
+            bheq("passed_bheq_eq")
+            mov(4, 1)
+            hlt()
+            label("passed_bheq_eq")
+            mov(4, 2)
+
+            mov(0, 15)
+            mov(1, 10)
+            cmp(0, 1)
+            bheq("passed_bheq_hi")
+            mov(5, 1)
+            hlt()
+            label("passed_bheq_hi")
+            mov(5, 2)
+
+            hlt()
+        }
+
+        val registers = VMLoader.loadCodes(opcodes)
+        assertEquals(2.toByte(), registers[2], "BLEQ (Equal) failed")
+        assertEquals(2.toByte(), registers[3], "BLEQ (Lower) failed")
+        assertEquals(2.toByte(), registers[4], "BHEQ (Equal) failed")
+        assertEquals(2.toByte(), registers[5], "BHEQ (Higher) failed")
     }
 }
