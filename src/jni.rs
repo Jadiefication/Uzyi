@@ -3,6 +3,13 @@ use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::{JByteArray, JClass};
 use jni::EnvUnowned;
 
+/// JNI entry point to load and run bytecode in the Uzyi virtual machine.
+///
+/// # Arguments
+/// * `opcodes` - A byte array containing the Uzyi bytecode.
+///
+/// # Returns
+/// * A byte array containing the values of the 8 general-purpose registers after execution.
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_loadCodes<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
