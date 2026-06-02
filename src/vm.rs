@@ -14,7 +14,7 @@ pub struct VM {
 }
 
 impl VM {
-    fn new(instructions: [u8; MEM_SIZE]) -> Self {
+    pub fn new(instructions: [u8; MEM_SIZE]) -> Self {
         Self {
             registers: [0; 8],
             memory: instructions,
@@ -25,7 +25,7 @@ impl VM {
         }
     }
 
-    fn run(&mut self) {
+    pub fn run(&mut self) {
         while self.running {
             let instruction = self[self.counter];
             self.counter += 1;
