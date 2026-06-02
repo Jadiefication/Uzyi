@@ -98,6 +98,22 @@ data class Asm(
     fun hlt() {
         data.add(0xFF.toByte())
     }
+
+    infix fun push(value: Byte) {
+        data.addAll(listOf(0x17, value))
+    }
+
+    infix fun pop(register: Byte) {
+        data.addAll(listOf(0x18, register))
+    }
+
+    infix fun call(address: Byte) {
+        data.addAll(listOf(0x19, register))
+    }
+
+    fun ret() {
+        data.add(0x1A)
+    }
 }
 
 fun assemble(builder: Asm.() -> Unit): ByteArray {
