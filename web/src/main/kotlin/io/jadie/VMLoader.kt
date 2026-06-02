@@ -1,6 +1,6 @@
 package src.main.kotlin.io.jadie
 
-class JNILoader {
+class VMLoader {
     companion object {
         init {
             System.loadLibrary("VM_Shit")
