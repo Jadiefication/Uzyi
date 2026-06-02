@@ -1,4 +1,4 @@
-use crate::instructions::{ADD, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, MOV, MOVR, MUL, NOT, OR, POP, PUSH, RET, SHL, SHR, STORE, SUB, XOR};
+use crate::instructions::{ADD, ADDI, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, LOADR, MOV, MOVR, MUL, MULI, NOT, OR, POP, PUSH, RET, SHL, SHR, STORE, STORER, SUB, SUBI, XOR};
 use crate::vm::VM;
 use std::sync::LazyLock;
 
@@ -37,6 +37,13 @@ pub static TABLE: LazyLock<[fn(&mut VM); 256]> = LazyLock::new(|| {
     table[POP] = pop;
     table[CALL] = call;
     table[RET] = ret;
+
+    table[ADDI] = addi;
+    table[SUBI] = subi;
+    table[MULI] = muli;
+
+    table[LOADR] = loadr;
+    table[STORER] = storer;
 
     table[HLT] = hlt;
 
@@ -281,6 +288,50 @@ fn ret(vm: &mut VM) {
     }
     vm.registers[7] += 1;
     vm.counter = vm.memory[(vm.get_reg(7) as usize) & 0xFF] as usize;
+}
+
+fn addi(vm: &mut VM) {
+    let r_1 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+    let value = vm.get_mem(vm.counter) as i8;
+    vm.counter += 1;
+    vm.registers[r_1] = vm.registers[r_1].wrapping_add(value);
+}
+
+fn subi(vm: &mut VM) {
+    let r_1 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+    let value = vm.get_mem(vm.counter) as i8;
+    vm.counter += 1;
+    vm.registers[r_1] = vm.registers[r_1].wrapping_sub(value);
+}
+
+fn muli(vm: &mut VM) {
+    let r_1 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+    let value = vm.get_mem(vm.counter) as i8;
+    vm.counter += 1;
+    vm.registers[r_1] = vm.registers[r_1].wrapping_mul(value);
+}
+
+fn loadr(vm: &mut VM) {
+    let r_1 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+    let r_2 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+
+    let target_address = (vm.registers[r_2] as usize) & 0xFF;
+    vm.registers[r_1] = vm.get_mem(target_address) as i8;
+}
+
+fn storer(vm: &mut VM) {
+    let r_1 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+    let r_2 = vm.get_mem(vm.counter) as usize;
+    vm.counter += 1;
+
+    let target_address = (vm.registers[r_2] as usize) & 0xFF;
+    vm.memory[target_address] = vm.registers[r_1] as u8;
 }
 
 fn hlt(vm: &mut VM) {

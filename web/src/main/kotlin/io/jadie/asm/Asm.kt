@@ -3,6 +3,10 @@ package io.jadie.asm
 data class Asm(
     val data: MutableList<Byte>
 ) {
+
+    val lRegistry = mutableMapOf<String, Int>()
+    val fRegistry = mutableListOf<FixUp>()
+
     fun mov(register: Byte, value: Byte) {
         data.addAll(listOf(0x00, register, value))
     }
@@ -95,6 +99,36 @@ data class Asm(
         data.addAll(listOf(0x16, address))
     }
 
+    infix fun beq(label: String) {
+        data.addAll(listOf(0x11, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
+    }
+
+    infix fun blo(label: String) {
+        data.addAll(listOf(0x12, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
+    }
+
+    infix fun bhi(label: String) {
+        data.addAll(listOf(0x13, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
+    }
+
+    infix fun bleq(label: String) {
+        data.addAll(listOf(0x14, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
+    }
+
+    infix fun bheq(label: String) {
+        data.addAll(listOf(0x15, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
+    }
+
+    infix fun b(label: String) {
+        data.addAll(listOf(0x16, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
+    }
+
     fun hlt() {
         data.add(0xFF.toByte())
     }
@@ -115,13 +149,41 @@ data class Asm(
         data.add(0x1A)
     }
 
+    fun addi(register: Byte, value: Byte) {
+        data.addAll(listOf(0x1B, register, value))
+    }
+
+    fun subi(register: Byte, value: Byte) {
+        data.addAll(listOf(0x1C, register, value))
+    }
+
+    fun muli(register: Byte, value: Byte) {
+        data.addAll(listOf(0x1D, register, value))
+    }
+
     fun currentAddress(): Int {
         return data.size
+    }
+
+    fun loadr(fRegister: Byte, sRegister: Byte) {
+        data.addAll(listOf(0x1E, fRegister, sRegister))
+    }
+
+    fun storer(fRegister: Byte, sRegister: Byte) {
+        data.addAll(listOf(0x1F, fRegister, sRegister))
+    }
+
+    fun label(name: String) {
+        lRegistry[name] = currentAddress()
     }
 }
 
 fun assemble(builder: Asm.() -> Unit): ByteArray {
     val asm = Asm(mutableListOf())
     asm.builder()
+    asm.fRegistry.forEach {
+        val pos = asm.lRegistry[it.labelName] ?: throw RuntimeException("Missing label ${it.labelName}")
+        asm.data[it.placeholderIndex] = pos.toByte()
+    }
     return asm.data.toByteArray()
 }

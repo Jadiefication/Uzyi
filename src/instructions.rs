@@ -33,4 +33,11 @@ pub const POP: usize = 0x18;
 pub const CALL: usize = 0x19;
 pub const RET: usize = 0x1A;
 
+pub const ADDI: usize = 0x1B;
+pub const SUBI: usize = 0x1C;
+pub const MULI: usize = 0x1D;
+
+pub const LOADR: usize = 0x1E;
+pub const STORER: usize = 0x1F;
+
 pub const HLT: usize = 0xFF;
