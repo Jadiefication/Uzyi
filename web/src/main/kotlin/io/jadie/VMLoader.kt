@@ -1,12 +1,8 @@
-package src.main.kotlin.io.jadie
+package io.jadie
 
 class VMLoader {
     companion object {
-        init {
-            System.loadLibrary("VM_Shit")
-        }
-
         @JvmStatic
-        external fun loadCodes(opcodes: ByteArray)
+        external fun loadCodes(opcodes: ByteArray): ByteArray
     }
 }

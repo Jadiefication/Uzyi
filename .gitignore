@@ -1,3 +1,6 @@
 /target
 web/.gradle
 .idea
+web/.idea
+web/.kotlin
+web/build

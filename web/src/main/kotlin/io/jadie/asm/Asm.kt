@@ -1,4 +1,4 @@
-package src.main.kotlin.io.jadie.asm
+package io.jadie.asm
 
 data class Asm(
     val data: MutableList<Byte>

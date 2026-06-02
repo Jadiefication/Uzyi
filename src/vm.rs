@@ -30,12 +30,16 @@ impl VM {
             let instruction = self[self.counter];
             self.counter += 1;
 
-            if self.counter >= MEM_SIZE {
+            if self.counter >= MEM_SIZE && self.running {
                 panic!("Out of bounds")
             }
 
             TABLE[instruction as usize](self)
         }
+    }
+
+    pub fn get_registers(&self) -> [i8; REGISTERS] {
+        self.registers
     }
 }
 

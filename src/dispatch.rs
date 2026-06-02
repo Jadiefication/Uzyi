@@ -160,6 +160,10 @@ fn cmp(vm: &mut VM) {
     vm.counter += 1;
     let r_2 = vm[vm.counter] as usize;
     vm.counter += 1;
+
+    vm.cf = false;
+    vm.zf = false;
+
     let result = vm.registers[r_1] - vm.registers[r_2];
     if result < 0 {
         vm.cf = true
@@ -172,6 +176,8 @@ fn beq(vm: &mut VM) {
     if vm.zf {
         let address = vm[vm.counter];
         vm.counter = address as usize;
+    } else {
+        vm.counter += 1;
     }
 }
 
@@ -179,6 +185,8 @@ fn blo(vm: &mut VM) {
     if vm.cf {
         let address = vm[vm.counter];
         vm.counter = address as usize;
+    } else {
+        vm.counter += 1;
     }
 }
 
@@ -186,6 +194,8 @@ fn bhi(vm: &mut VM) {
     if !vm.cf && !vm.zf {
         let address = vm[vm.counter];
         vm.counter = address as usize;
+    } else {
+        vm.counter += 1;
     }
 }
 
@@ -193,6 +203,8 @@ fn bleq(vm: &mut VM) {
     if vm.cf || vm.zf {
         let address = vm[vm.counter];
         vm.counter = address as usize;
+    } else {
+        vm.counter += 1;
     }
 }
 
@@ -200,6 +212,8 @@ fn bheq(vm: &mut VM) {
     if !vm.cf || vm.zf {
         let address = vm[vm.counter];
         vm.counter = address as usize;
+    } else {
+        vm.counter += 1;
     }
 }
 
