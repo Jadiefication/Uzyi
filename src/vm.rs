@@ -1,4 +1,3 @@
-use std::ops::Index;
 use crate::dispatch::TABLE;
 
 const REGISTERS: usize = 8;
@@ -15,8 +14,10 @@ pub struct VM {
 
 impl VM {
     pub fn new(instructions: [u8; MEM_SIZE]) -> Self {
+        let mut registers = [0; 8];
+        registers[7] = -1;
         Self {
-            registers: [0; 8],
+            registers,
             memory: instructions,
             counter: 0,
             running: true,
@@ -27,7 +28,7 @@ impl VM {
 
     pub fn run(&mut self) {
         while self.running {
-            let instruction = self[self.counter];
+            let instruction = self.get_mem(self.counter);
             self.counter += 1;
 
             if self.counter >= MEM_SIZE && self.running {
@@ -41,16 +42,17 @@ impl VM {
     pub fn get_registers(&self) -> [i8; REGISTERS] {
         self.registers
     }
-}
 
-impl Index<usize> for VM {
-    type Output = u8;
-
-    fn index(&self, index: usize) -> &Self::Output {
+    pub fn get_mem(&self, index: usize) -> u8 {
         if index >= MEM_SIZE {
             panic!("Out of bounds")
         } else {
-            &self.memory[index]
+            self.memory[index]
         }
     }
+
+    pub fn get_reg(&self, index: usize) -> i8 {
+        self.registers[index]
+    }
+
 }
