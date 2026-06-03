@@ -49,7 +49,7 @@ fun main() {
                         """.trimIndent()
 
                         val arr = engine.eval(scriptTemplate) as ByteArray
-                        val regs = VMLoader.loadCodes(arr).toList().map { it.toInt() }
+                        val regs = VMLoader.loadCodes(arr).registers.toList().map { it.toInt() }
                         outgoing.send(Frame.Text(regs.toString()))
                     }
                 } catch (e: ClosedReceiveChannelException) {
