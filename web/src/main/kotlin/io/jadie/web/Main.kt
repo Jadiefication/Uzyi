@@ -259,6 +259,9 @@ fun main() {
                                 <span style="font-weight: bold;">Uzyi VM Interface</span>
                             </div>
                             <div class="controls">
+                                <button id="step-btn" onclick="stepVM()">
+                                    <i class="fas fa-step-forward"></i> Step
+                                </button>
                                 <button id="run-btn" onclick="runVM()">
                                     <i class="fas fa-play"></i> Run
                                 </button>
@@ -383,6 +386,20 @@ hlt()</textarea>
                                 div.innerText = "> " + message;
                                 console.appendChild(div);
                                 console.scrollTop = console.scrollHeight;
+                            }
+
+                            async function stepVM() {
+                                const code = document.getElementById('isa-input').value;
+                                const stepBtn = document.getElementById('step-btn');
+                                
+                                stepBtn.disabled = true;
+                                log('Stepping VM...');
+                                
+                                // Placeholder for async backend logic
+                                // await fetch('/step', ...) 
+                                
+                                log('Step logic not implemented on backend yet.');
+                                stepBtn.disabled = false;
                             }
 
                             async function runVM() {

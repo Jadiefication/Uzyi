@@ -45,26 +45,32 @@ impl VM {
         }
     }
 
+    pub fn step(&mut self) -> Result<(), SystemTimeError> {
+        if self.status == Status::Stopped { return Ok(()); }
+        if let Status::Sleeping(wake_at) = self.status {
+            if self.start_time.elapsed()? >= Duration::from_millis(wake_at) {
+                self.status = Running;
+            } else {
+                std::thread::yield_now();
+                return Ok(())
+            }
+        }
+
+        let instruction = self.get_mem(self.counter);
+        self.counter += 1;
+
+        TABLE[instruction as usize](self);
+
+        self.cycles += 1;
+        Ok(())
+    }
+
     /// Starts the execution of the virtual machine.
     ///
     /// It fetches, decodes, and executes instructions until the `running` flag is false.
     pub fn run(&mut self) -> Result<(), SystemTimeError> {
         while self.status != Status::Stopped {
-            if let Status::Sleeping(wake_at) = self.status {
-                if self.start_time.elapsed()? >= Duration::from_millis(wake_at) {
-                    self.status = Running;
-                } else {
-                    std::thread::yield_now();
-                    continue;
-                }
-            }
-
-            let instruction = self.get_mem(self.counter);
-            self.counter += 1;
-
-            TABLE[instruction as usize](self);
-
-            self.cycles += 1;
+            self.step()?
         }
         Ok(())
     }
