@@ -72,5 +72,7 @@ pub const LOADR: usize = 0x1E;
 /// Store to address in register: `STORER R1, R2` ([R2] = R1)
 pub const STORER: usize = 0x1F;
 
+pub const SLEEP: usize = 0x20;
+
 /// Halt execution
 pub const HLT: usize = 0xFF;

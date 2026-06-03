@@ -1,6 +1,7 @@
-use crate::instructions::{ADD, ADDI, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, LOADR, MOV, MOVR, MUL, MULI, NOT, OR, POP, PUSH, RET, SHL, SHR, STORE, STORER, SUB, SUBI, XOR};
+use crate::instructions::{ADD, ADDI, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, LOADR, MOV, MOVR, MUL, MULI, NOT, OR, POP, PUSH, RET, SHL, SHR, SLEEP, STORE, STORER, SUB, SUBI, XOR};
 use crate::vm::VM;
 use std::sync::LazyLock;
+use crate::status::Status;
 
 fn empty(_vm: &mut VM) {}
 
@@ -45,6 +46,8 @@ pub static TABLE: LazyLock<[fn(&mut VM); 256]> = LazyLock::new(|| {
 
     table[LOADR] = loadr;
     table[STORER] = storer;
+
+    table[SLEEP] = sleep;
 
     table[HLT] = hlt;
 
@@ -367,7 +370,15 @@ fn storer(vm: &mut VM) {
     vm.memory[target_address] = vm.registers[r_1] as u8;
 }
 
+fn sleep(vm: &mut VM) {
+    let high_byte = vm.get_mem(vm.counter) as u64;
+    vm.counter += 1;
+    let low_byte = vm.get_mem(vm.counter) as u64;
+    vm.counter += 1;
+    vm.status = Status::Sleeping((high_byte << 8) | low_byte)
+}
+
 /// HLT: Halts VM execution.
 fn hlt(vm: &mut VM) {
-    vm.running = false
+    vm.status = Status::Stopped
 }

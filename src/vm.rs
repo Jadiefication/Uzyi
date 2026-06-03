@@ -1,4 +1,7 @@
 use crate::dispatch::TABLE;
+use crate::status::Status;
+use crate::status::Status::Running;
+use std::time::{Duration, SystemTime, SystemTimeError};
 
 const REGISTERS: usize = 8;
 const MEM_SIZE: usize = 256;
@@ -14,7 +17,7 @@ pub struct VM {
     /// Program counter pointing to the next instruction in memory.
     pub counter: usize,
     /// Execution status of the VM.
-    pub running: bool,
+    pub status: Status,
     /// Carry flag for arithmetic operations.
     pub cf: bool,
     /// Zero flag for comparison and arithmetic operations.
@@ -32,7 +35,7 @@ impl VM {
             registers,
             memory: instructions,
             counter: 0,
-            running: true,
+            status: Running,
             cf: false,
             zf: false
         }
@@ -41,17 +44,34 @@ impl VM {
     /// Starts the execution of the virtual machine.
     ///
     /// It fetches, decodes, and executes instructions until the `running` flag is false.
-    pub fn run(&mut self) {
-        while self.running {
+    pub fn run(&mut self) -> Result<(), SystemTimeError> {
+        if let Status::Sleeping(wake_at) = self.status {
+            let time = SystemTime::now();
+            let duration = Duration::from_millis(wake_at);
+            if time.elapsed()?.max(duration) != duration {
+                self.status = Running
+            }
+        }
+        while self.status != Status::Stopped {
+            if let Status::Sleeping(wake_at) = self.status {
+                if SystemTime::now().elapsed()? >= Duration::from_millis(wake_at) {
+                    self.status = Running;
+                } else {
+                    std::thread::yield_now();
+                    continue;
+                }
+            }
+
             let instruction = self.get_mem(self.counter);
             self.counter += 1;
 
-            if self.counter >= MEM_SIZE && self.running {
+            if self.counter >= MEM_SIZE && self.status == Running {
                 panic!("Out of bounds")
             }
 
             TABLE[instruction as usize](self)
         }
+        Ok(())
     }
 
     /// Returns a copy of the general-purpose registers.

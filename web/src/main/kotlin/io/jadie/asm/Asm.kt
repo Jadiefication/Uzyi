@@ -302,6 +302,10 @@ data class Asm(
     fun label(name: String) {
         lRegistry[name] = currentAddress()
     }
+
+    fun sleep(highByte: Byte, lowByte: Byte) {
+        data.addAll(listOf(0x20, highByte, lowByte))
+    }
 }
 
 /**
