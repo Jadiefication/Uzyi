@@ -21,7 +21,6 @@ import javax.script.ScriptEngineManager
 
 fun main() {
     val libPath = File("./target/debug/libUzyi.dylib").absolutePath
-    println(libPath)
     System.load(libPath)
 
     val engine = ScriptEngineManager().getEngineByName("kotlin")
@@ -54,7 +53,8 @@ fun main() {
                         """.trimIndent()
 
                         val arr = engine.eval(scriptTemplate) as ByteArray
-                        val state = VMLoader.loadCodes(arr)
+                        val vm = VMLoader.createVM(arr)
+                        val state = VMLoader.runVM(vm)
                         outgoing.send(Frame.Text(Json.encodeToString(state)))
                     }
                 } catch (e: ClosedReceiveChannelException) {
@@ -341,8 +341,8 @@ hlt()</textarea>
                                 });
                                 
                                 // Update status, PC, Cycles
-                                statusText.innerText = state.status === 0xFF ? 'Halted' : 'Error (' + state.status + ')';
-                                statusText.style.color = state.status === 0xFF ? '#4caf50' : '#f48771';
+                                statusText.innerText = state.status === 0x2 ? 'Halted' : 'Error (' + state.status + ')';
+                                statusText.style.color = state.status === 0x2 ? '#4caf50' : '#f48771';
                                 document.getElementById('pc-value').textContent = state.counter;
                                 document.getElementById('cycles-value').textContent = state.cycles;
                                 

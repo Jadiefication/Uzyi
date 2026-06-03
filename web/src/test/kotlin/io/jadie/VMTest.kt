@@ -23,9 +23,13 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(30.toByte(), registers[0], "R0 should be 30")
         assertEquals(20.toByte(), registers[1], "R1 should be 20")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -37,8 +41,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(35.toByte(), registers[0], "R0 should be 35")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -50,8 +58,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(42.toByte(), registers[0], "R0 should be 42")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -63,8 +75,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(7.toByte(), registers[0], "R0 should be 7 (42 / 6)")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -84,8 +100,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(5.toByte(), registers[0], "R0 should be 5 after loop")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -109,11 +129,15 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(0b1000.toByte(), registers[2], "AND failed")
         assertEquals(0b1110.toByte(), registers[3], "OR failed")
         assertEquals(0b0110.toByte(), registers[4], "XOR failed")
         assertEquals((0b1010.toByte().inv()), registers[5], "NOT failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -129,9 +153,13 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(4.toByte(), registers[0], "SHL failed")
         assertEquals(8.toByte(), registers[1], "SHR failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -144,9 +172,13 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(20.toByte(), registers[0], "First POP failed")
         assertEquals(10.toByte(), registers[1], "Second POP failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -162,8 +194,12 @@ class VMTest {
             ret()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(42.toByte(), registers[0], "Subroutine failed to update R0")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -176,8 +212,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(123.toByte(), registers[1], "Memory LOAD/STORE failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -222,10 +262,14 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(2.toByte(), registers[2], "BEQ failed")
         assertEquals(2.toByte(), registers[3], "BLO failed")
         assertEquals(2.toByte(), registers[4], "BHI failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -238,8 +282,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(48.toByte(), registers[0], "Immediate arithmetic chain failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -253,8 +301,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(123.toByte(), registers[2], "Register-based LOAD/STORE failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -268,8 +320,12 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(1.toByte(), registers[0], "Branching to label failed")
+
+        VMLoader.freeVM(vm)
     }
 
     @Test
@@ -316,10 +372,14 @@ class VMTest {
             hlt()
         }
 
-        val registers = VMLoader.loadCodes(opcodes).registers
+        val vm = VMLoader.createVM(opcodes)
+
+        val registers = VMLoader.runVM(vm).registers
         assertEquals(2.toByte(), registers[2], "BLEQ (Equal) failed")
         assertEquals(2.toByte(), registers[3], "BLEQ (Lower) failed")
         assertEquals(2.toByte(), registers[4], "BHEQ (Equal) failed")
         assertEquals(2.toByte(), registers[5], "BHEQ (Higher) failed")
+
+        VMLoader.freeVM(vm)
     }
 }
