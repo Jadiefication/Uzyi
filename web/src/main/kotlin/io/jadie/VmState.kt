@@ -1,5 +1,8 @@
 package io.jadie
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class VMState(
     val registers: ByteArray,
     val counter: Int,
