@@ -1,15 +1,64 @@
 package io.jadie.web
 
+import io.jadie.VMLoader
 import io.ktor.http.*
-import io.ktor.server.application.*
+import io.ktor.server.application.install
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import java.io.File
+import javax.script.ScriptEngineManager
 
 fun main() {
+    val libPath = File("./target/debug/libUzyi.dylib").absolutePath
+    println(libPath)
+    System.load(libPath)
+
+    val engine = ScriptEngineManager().getEngineByName("kotlin")
+
     embeddedServer(Netty, port = 8080) {
+        install(WebSockets)
         routing {
+            webSocket("/code") {
+                try {
+                    for (frame in incoming){
+                        val text = (frame as Frame.Text).readText()
+
+                        val cleanBody = text.lines()
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && !it.startsWith("//") }
+                            .joinToString("\n    ")
+
+
+                        val scriptTemplate = """
+                        import io.jadie.asm.assemble
+
+                        fun generateBinary(): ByteArray {
+                            return assemble {
+                                $cleanBody
+                            }
+                        }
+                
+                        generateBinary()
+                        """.trimIndent()
+
+                        val arr = engine.eval(scriptTemplate) as ByteArray
+                        val regs = VMLoader.loadCodes(arr).toList().map { it.toInt() }
+                        outgoing.send(Frame.Text(regs.toString()))
+                    }
+                } catch (e: ClosedReceiveChannelException) {
+                    println("onClose ${closeReason.await()}")
+                } catch (e: Throwable) {
+                    println("onError ${closeReason.await()}")
+                    e.printStackTrace()
+                }
+            }
             get("/") {
                 call.respondText(
                     $$"""
@@ -208,12 +257,26 @@ hlt()</textarea>
 
                         <script>
                             // Initialize registers
+                            const ws = new WebSocket("ws://localhost:8080/code");
+                            const statusText = document.getElementById('status-text');
+                            const runBtn = document.getElementById('run-btn');
+                            
+                            ws.addEventListener("message", (event) => {
+                                
+                                JSON.parse(event.data).forEach((it, i) => {;
+                                    document.getElementById(`reg-${i}`).textContent = it;
+                                });
+                                
+                                statusText.innerText = 'Halted'
+                                runBtn.disabled = false;
+                            });
+                            
                             const regGrid = document.getElementById('reg-grid');
                             for (let i = 0; i < 8; i++) {
                                 regGrid.innerHTML += `
                                     <div class="register-card">
                                         <span class="reg-label">R${i}</span>
-                                        <span class="reg-value" id="reg-${i}>00</span>
+                                        <span class="reg-value" id="reg-${i}">00</span>
                                     </div>
                                 `;
                             }
@@ -229,32 +292,14 @@ hlt()</textarea>
 
                             async function runVM() {
                                 const code = document.getElementById('isa-input').value;
-                                const runBtn = document.getElementById('run-btn');
-                                const statusText = document.getElementById('status-text');
                                 
                                 runBtn.disabled = true;
                                 statusText.innerText = 'Running...';
                                 statusText.style.color = '#e2c08d';
                                 
                                 log('Starting VM simulation...');
-                                
-                                // Simulate network delay
-                                await new Promise(resolve => setTimeout(resolve, 800));
-                                
-                                log('Backend logic not implemented yet (UI only mode).');
-                                log('Input received: ' + code.split('\n').length + ' lines.');
-                                
-                                // Simulate some register changes for visual effect
-                                for (let i = 0; i < 3; i++) {
-                                    const val = Math.floor(Math.random() * 255);
-                                    const el = document.getElementById(`reg-` + i);
-                                    el.innerText = val.toString(16).toUpperCase().padStart(2, '0');
-                                    el.style.color = '#4ec9b0';
-                                }
-                                
-                                statusText.innerText = 'Halted (Simulated)';
-                                statusText.style.color = '#4caf50';
-                                runBtn.disabled = false;
+                               
+                                ws.send(code);
                             }
                         </script>
                     </body>

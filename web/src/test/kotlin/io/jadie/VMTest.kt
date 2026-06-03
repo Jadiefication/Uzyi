@@ -10,7 +10,7 @@ class VMTest {
 
     init {
         // Force load the library from the target directory
-        val libPath = File("../target/debug/libCustom_ISA.dylib").absolutePath
+        val libPath = File("../target/debug/libUzyi.dylib").absolutePath
         System.load(libPath)
     }
 
