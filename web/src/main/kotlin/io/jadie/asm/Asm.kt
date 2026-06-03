@@ -1,5 +1,8 @@
 package io.jadie.asm
 
+const val SYS_CYCLES = 0xFC.toByte()
+const val SYS_TIME = 0xFD.toByte()
+
 /**
  * The [Asm] class provides a DSL for generating Uzyi bytecode.
  */

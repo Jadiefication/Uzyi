@@ -21,7 +21,9 @@ pub struct VM {
     /// Carry flag for arithmetic operations.
     pub cf: bool,
     /// Zero flag for comparison and arithmetic operations.
-    pub zf: bool
+    pub zf: bool,
+    pub start_time: SystemTime,
+    pub cycles: usize
 }
 
 impl VM {
@@ -37,7 +39,9 @@ impl VM {
             counter: 0,
             status: Running,
             cf: false,
-            zf: false
+            zf: false,
+            start_time: SystemTime::now(),
+            cycles: 0
         }
     }
 
@@ -45,16 +49,9 @@ impl VM {
     ///
     /// It fetches, decodes, and executes instructions until the `running` flag is false.
     pub fn run(&mut self) -> Result<(), SystemTimeError> {
-        if let Status::Sleeping(wake_at) = self.status {
-            let time = SystemTime::now();
-            let duration = Duration::from_millis(wake_at);
-            if time.elapsed()?.max(duration) != duration {
-                self.status = Running
-            }
-        }
         while self.status != Status::Stopped {
             if let Status::Sleeping(wake_at) = self.status {
-                if SystemTime::now().elapsed()? >= Duration::from_millis(wake_at) {
+                if self.start_time.elapsed()? >= Duration::from_millis(wake_at) {
                     self.status = Running;
                 } else {
                     std::thread::yield_now();
@@ -65,11 +62,9 @@ impl VM {
             let instruction = self.get_mem(self.counter);
             self.counter += 1;
 
-            if self.counter >= MEM_SIZE && self.status == Running {
-                panic!("Out of bounds")
-            }
+            TABLE[instruction as usize](self);
 
-            TABLE[instruction as usize](self)
+            self.cycles += 1;
         }
         Ok(())
     }
@@ -87,6 +82,10 @@ impl VM {
     pub fn get_mem(&self, index: usize) -> u8 {
         if index >= MEM_SIZE {
             panic!("Out of bounds")
+        } else if index == 0xFC {
+            self.cycles as u8
+        } else if index == 0xFD {
+            self.start_time.elapsed().unwrap_or(Duration::new(0, 0)).as_micros() as u8
         } else {
             self.memory[index]
         }
