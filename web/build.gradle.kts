@@ -15,6 +15,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:2.3.21")
 }
 
 kotlin {

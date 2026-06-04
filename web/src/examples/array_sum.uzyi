@@ -1,0 +1,33 @@
+// Sum an array of numbers in memory
+// R0 = pointer to current element
+// R1 = count of elements
+// R2 = accumulator (sum)
+
+mov(0, 100)    // Start address of array
+mov(1, 5)      // Number of elements
+mov(2, 0)      // Sum = 0
+mov(5, 0)
+
+// Initialize array in memory for this example
+mov(3, 10)
+store(3, 100)
+mov(3, 20)
+store(3, 101)
+mov(3, 30)
+store(3, 102)
+mov(3, 40)
+store(3, 103)
+mov(3, 50)
+store(3, 104)
+
+label("sum_loop")
+cmp(1, 5)
+beq("end")
+loadr(4, 0)    // Load current element into R4
+add(2, 4)      // Sum = Sum + R4
+inc(0)         // Move to next address
+dec(1)         // Decrement count
+b("sum_loop")
+
+label("end")
+hlt()

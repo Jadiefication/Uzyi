@@ -95,6 +95,16 @@ If you want to run Uzyi locally and experiment with the ISA:
    }
    ```
 
+## Code Examples & Programs
+
+You can find runnable, real-world examples written in the Uzyi assembly language inside the `src/examples/` directory. These files demonstrate the expressiveness of the architecture and are evaluated dynamically at runtime by our script-engine testing framework:
+
+- [**array_sum.uzyi**](web/src/examples/array_sum.uzyi): Allocates an array in memory, populates data blocks, iterates through elements using register pointers (`loadr`), and sums values into an accumulator.
+- [**factorial.uzyi**](web/src/examples/factorial.uzyi): Implements basic loop counters and multiplicative wrapping arithmetic to calculate values like `5!`.
+- [**fibonacci.uzyi**](web/src/examples/fibonacci.uzyi): Tracks sequence state and shifts variables dynamically to compute the $n$-th Fibonacci sequence number.
+
+These examples serve as both structural documentation for writing your own programs and living test cases for the execution lifecycle within `ExamplesTest.kt`.
+
 ## ISA Overview
 
 The Uzyi ISA includes 32+ instructions covering:

@@ -1,0 +1,17 @@
+// Factorial of R0, result in R1
+// R0 = n
+// R1 = result
+mov(0, 5)     // Calculate 5!
+mov(1, 1)     // Result = 1
+mov(5, 0)     // Literal 0 for comparison
+
+label("loop")
+movr(4, 0)    // Copy n to R4 for comparison
+cmp(4, 5)     // if R4 == 0 (where R5 is 0)
+beq("end")    // then end
+mul(1, 0)     // result = result * n
+dec(0)        // n = n - 1
+b("loop")
+
+label("end")
+hlt()

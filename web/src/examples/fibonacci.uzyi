@@ -1,0 +1,22 @@
+// Fibonacci sequence
+// Calculates the n-th Fibonacci number
+// R0 = n (input)
+// R1 = result (output)
+
+mov(0, 7)      // Get 7th Fibonacci number
+mov(1, 0)      // prev1 = 0
+mov(2, 1)      // prev2 = 1
+mov(5, 0)      // Literal 0 for comparison
+
+label("loop")
+movr(4, 0)
+cmp(4, 5)
+beq("done")
+movr(3, 1)     // temp = prev1
+add(1, 2)      // prev1 = prev1 + prev2
+movr(2, 3)     // prev2 = temp
+dec(0)
+b("loop")
+
+label("done")
+hlt()
