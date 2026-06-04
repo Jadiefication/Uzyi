@@ -1,9 +1,10 @@
+jdk:
+  - openjdk17
+
 before_install:
   - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   - source $HOME/.cargo/env
   - rustup target add x86_64-unknown-linux-gnu
-  - rustup target add x86_64-pc-windows-gnu
-  - apt-get update && apt-get install -y mingw-w64
 
 install:
   - cd web && ./gradlew publishToMavenLocal
