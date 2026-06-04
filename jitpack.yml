@@ -3,6 +3,7 @@ before_install:
   - source $HOME/.cargo/env
   - rustup target add x86_64-unknown-linux-gnu
   - rustup target add x86_64-pc-windows-gnu
-  # Note: macOS target requires a specialized toolchain not easily available on JitPack's default Linux environment.
-  # We'll skip macOS cross-compilation on JitPack for now as it's not supported by default.
-  - sudo apt-get update && sudo apt-get install -y mingw-w64
+  - apt-get update && apt-get install -y mingw-w64
+
+build:
+  - cd web && ./gradlew publishToMavenLocal
