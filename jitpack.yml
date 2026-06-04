@@ -5,6 +5,5 @@ before_install:
   - rustup target add x86_64-pc-windows-gnu
   - apt-get update && apt-get install -y mingw-w64
 
-build: |
-  cd web
-  ./gradlew publishToMavenLocal
+install:
+  - cd web && ./gradlew publishToMavenLocal
