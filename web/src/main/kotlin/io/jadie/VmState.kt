@@ -3,6 +3,17 @@ package io.jadie
 import kotlinx.serialization.Serializable
 
 @Serializable
+/**
+ * Immutable snapshot of the VM at a given point in time.
+ *
+ * - [registers]: 8 general-purpose 8-bit registers (R0..R7), where R7 is the stack pointer.
+ * - [counter]: Program counter (0..255), next instruction address.
+ * - [status]: Encoded execution status (implementation-specific values from native side).
+ * - [cf]: Carry/borrow flag from the last comparison/arithmetic.
+ * - [zf]: Zero flag from the last comparison/arithmetic.
+ * - [cycles]: Total executed instruction count (exposed through SYS address 0xFC as well).
+ * - [memory]: Full 256-byte memory image as signed-int array for easier interop/serialization.
+ */
 data class VMState(
     val registers: ByteArray,
     val counter: Int,

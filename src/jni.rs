@@ -4,6 +4,7 @@ use jni::objects::{JByteArray, JClass, JObject};
 use jni::sys::jlong;
 use jni::{jni_sig, jni_str, Env, EnvUnowned, JValue};
 
+/// Builds a Kotlin/Java `io.jadie.VMState` instance from a native [`VM`] snapshot.
 fn create_state<'caller>(vm: &VM, env: &mut Env<'caller>) -> jni::errors::Result<JObject<'caller>> {
     let registers = vm.get_registers();
     let j_registers = env.new_byte_array(registers.len())?;
@@ -38,6 +39,11 @@ fn create_state<'caller>(vm: &VM, env: &mut Env<'caller>) -> jni::errors::Result
 ///
 /// # Returns
 /// * A byte array containing the values of the 8 general-purpose registers after execution.
+/**
+ * JNI: `VMLoader.runVM(long vmPointer): VMState`
+ *
+ * Runs the VM until it halts (or yields due to sleep) and returns a fresh `VMState`.
+ */
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_runVM<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -59,6 +65,12 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_runVM<'caller>(
         }).resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/**
+ * JNI: `VMLoader.createVM(byte[] opcodes): long`
+ *
+ * Creates a native [`VM`] instance, loads up to 256 bytes of bytecode, and returns
+ * an opaque pointer which must later be freed via `VMLoader.freeVM(long)`.
+ */
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_createVM<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -82,6 +94,11 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_createVM<'caller>(
         }).resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/**
+ * JNI: `VMLoader.stepVM(long vmPointer): VMState`
+ *
+ * Executes a single instruction (if possible) and returns a `VMState` snapshot.
+ */
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_stepVM<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -103,6 +120,11 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_stepVM<'caller>(
         }).resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/**
+ * JNI: `VMLoader.getState(long vmPointer): VMState`
+ *
+ * Returns a `VMState` snapshot without advancing the VM.
+ */
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_getState<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -122,6 +144,11 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_getState<'caller>(
         }).resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/**
+ * JNI: `VMLoader.freeVM(long vmPointer): void`
+ *
+ * Frees a previously created native [`VM`]. Safe to call with a null or already-freed pointer.
+ */
 #[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_freeVM(
     _unowned_env: EnvUnowned,

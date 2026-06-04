@@ -28,10 +28,12 @@ tasks.test {
 val nativeResourceDir = layout.projectDirectory.dir("src/main/resources/native")
 
 val buildNative by tasks.registering {
-    description = ""
+    description = "Build the Rust native library and copy it into resources/native. On JitPack (Linux), cross-builds Linux and Windows targets."
     doLast {
+        val isJitpack = System.getenv("JITPACK") == "true"
         val os = System.getProperty("os.name").lowercase()
-        val targets = if (System.getenv("JITPACK") == "true") {
+        // Only attempt cross builds on Linux (JitPack). On local/mac/windows only build host to avoid toolchain errors (exit code 101)
+        val targets = if (isJitpack && os.contains("linux")) {
             listOf(
                 "x86_64-unknown-linux-gnu",
                 "x86_64-pc-windows-gnu"
@@ -40,22 +42,35 @@ val buildNative by tasks.registering {
             listOf("")
         }
 
+        fun runCommand(vararg cmd: String) {
+            val pb = ProcessBuilder(*cmd)
+            pb.directory(File(".."))
+            pb.redirectErrorStream(true)
+            pb.inheritIO()
+            val p = pb.start()
+            val code = p.waitFor()
+            if (code != 0) throw GradleException("Command failed: ${cmd.joinToString(" ")} (exit $code)")
+        }
+
+        // Ensure required Rust targets exist on JitPack before building
+        if (isJitpack && os.contains("linux")) {
+            listOf("x86_64-unknown-linux-gnu", "x86_64-pc-windows-gnu").forEach { t ->
+                try {
+                    runCommand("rustup", "target", "add", t)
+                } catch (e: Exception) {
+                    logger.warn("Failed to add Rust target $t: ${e.message}. Continuing may fail if toolchain is missing.")
+                }
+            }
+        }
+
         targets.forEach { target ->
             val targetArgs = mutableListOf("cargo", "build", "--release")
             if (target.isNotEmpty()) {
                 targetArgs.add("--target")
                 targetArgs.add(target)
             }
-            
-            val processBuilder = ProcessBuilder(targetArgs)
-            processBuilder.directory(File(".."))
-            processBuilder.redirectErrorStream(true)
-            processBuilder.inheritIO()
-            val process = processBuilder.start()
-            val exitCode = process.waitFor()
-            if (exitCode != 0) {
-                throw GradleException("Cargo build failed with exit code $exitCode")
-            }
+
+            runCommand(*targetArgs.toTypedArray())
 
             val (prefix, suffix) = when {
                 target.contains("windows") || (target.isEmpty() && os.contains("win")) -> "" to ".dll"
@@ -66,7 +81,7 @@ val buildNative by tasks.registering {
             val builtLibName = "${prefix}Uzyi$suffix"
             val targetDir = if (target.isNotEmpty()) "../target/$target/release" else "../target/release"
             val sourceFile = file("$targetDir/$builtLibName")
-            
+
             if (sourceFile.exists()) {
                 copy {
                     from(sourceFile)

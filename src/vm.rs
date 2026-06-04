@@ -1,9 +1,17 @@
+//! Uzyi virtual machine core state and execution.
+//!
+//! This module defines the [`VM`] structure and its execution methods. The VM is an
+//! 8-bit machine with 256 bytes of memory and 8 general-purpose registers (R0..R7).
+//! R7 acts as the stack pointer.
+
 use crate::dispatch::TABLE;
 use crate::status::Status;
 use crate::status::Status::Running;
 use std::time::{Duration, SystemTime, SystemTimeError};
 
+/// Number of general-purpose registers (R0..R7).
 const REGISTERS: usize = 8;
+/// Total size of VM memory in bytes.
 const MEM_SIZE: usize = 256;
 
 /// The `VM` struct represents the state of the virtual machine.
@@ -22,14 +30,17 @@ pub struct VM {
     pub cf: bool,
     /// Zero flag for comparison and arithmetic operations.
     pub zf: bool,
+    /// Time when the VM instance started (used by `sleep` and timing SYS reads).
     pub start_time: SystemTime,
+    /// Number of executed cycles (exposed via SYS address 0xFC as an 8-bit value).
     pub cycles: usize
 }
 
 impl VM {
     /// Creates a new `VM` instance with the provided instructions loaded into memory.
     ///
-    /// The stack pointer (R7) is initialized to -1.
+    /// - Initializes registers to 0 and sets R7 (stack pointer) to -1 (top of stack at 0xFF).
+    /// - Sets the program counter to 0 and status to `Running`.
     pub fn new(instructions: [u8; MEM_SIZE]) -> Self {
         let mut registers = [0; 8];
         registers[7] = -1;
@@ -45,6 +56,11 @@ impl VM {
         }
     }
 
+    /// Executes a single instruction if possible.
+    ///
+    /// - If the VM is `Stopped`, does nothing.
+    /// - If `Sleeping(until)`, yields if current time is before `until`, otherwise resumes `Running`.
+    /// - Otherwise, fetch-decodes-executes one instruction and increments `cycles`.
     pub fn step(&mut self) -> Result<(), SystemTimeError> {
         if self.status == Status::Stopped { return Ok(()); }
         if let Status::Sleeping(wake_at) = self.status {
@@ -65,9 +81,9 @@ impl VM {
         Ok(())
     }
 
-    /// Starts the execution of the virtual machine.
+    /// Starts continuous execution of the virtual machine.
     ///
-    /// It fetches, decodes, and executes instructions until the `running` flag is false.
+    /// Loops calling [`step`] until the VM status becomes `Stopped`.
     pub fn run(&mut self) -> Result<(), SystemTimeError> {
         while self.status != Status::Stopped {
             self.step()?
@@ -82,9 +98,12 @@ impl VM {
 
     /// Retrieves a byte from memory at the specified index.
     ///
-    /// # Panics
+    /// Special SYS-mapped addresses:
+    /// - `0xFC`: returns the low 8 bits of the `cycles` counter
+    /// - `0xFD`: returns a coarse timer (microseconds since start, truncated to 8 bits)
     ///
-    /// Panics if the index is out of bounds.
+    /// # Panics
+    /// Panics if the index is out of bounds (>= 256).
     pub fn get_mem(&self, index: usize) -> u8 {
         if index >= MEM_SIZE {
             panic!("Out of bounds")
@@ -98,6 +117,7 @@ impl VM {
     }
 
     /// Retrieves the value of a register at the specified index.
+    /// Index must be within `0..REGISTERS`.
     pub fn get_reg(&self, index: usize) -> i8 {
         self.registers[index]
     }

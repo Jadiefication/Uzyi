@@ -79,7 +79,7 @@ fn add(vm: &mut VM) {
     vm.counter += 1;
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.registers[r_1] + vm.registers[r_2]
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_add(vm.get_reg(r_2));
 }
 
 /// SUB R1, R2: Subtracts R2 from R1 and stores the result in R1.
@@ -88,7 +88,7 @@ fn sub(vm: &mut VM) {
     vm.counter += 1;
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.registers[r_1] - vm.registers[r_2]
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_sub(vm.get_reg(r_2));
 }
 
 /// MUL R1, R2: Multiplies R1 by R2 and stores the result in R1.
@@ -97,7 +97,7 @@ fn mul(vm: &mut VM) {
     vm.counter += 1;
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.registers[r_1] * vm.registers[r_2]
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_mul(vm.get_reg(r_2));
 }
 
 /// DIV R1, R2: Divides R1 by R2 and stores the result in R1.
@@ -106,21 +106,26 @@ fn div(vm: &mut VM) {
     vm.counter += 1;
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.registers[r_1] / vm.registers[r_2]
+    let divisor = vm.get_reg(r_2);
+    if divisor == 0 {
+        vm.status = Status::Stopped;
+        return;
+    }
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_div(divisor);
 }
 
 /// INC R: Increments the value in register R.
 fn inc(vm: &mut VM) {
     let r_1 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] += 1
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_add(1);
 }
 
 /// DEC R: Decrements the value in register R.
 fn dec(vm: &mut VM) {
     let r_1 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] -= 1
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_sub(1);
 }
 
 /// AND R1, R2: Bitwise AND of R1 and R2, stores result in R1.
@@ -161,14 +166,14 @@ fn xor(vm: &mut VM) {
 fn shl(vm: &mut VM) {
     let r_1 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.registers[r_1] << 1
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_shl(1);
 }
 
 /// SHR R: Logical shift right of R by 1 bit.
 fn shr(vm: &mut VM) {
     let r_1 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
-    vm.registers[r_1] = vm.registers[r_1] >> 1
+    vm.registers[r_1] = vm.get_reg(r_1).wrapping_shr(1);
 }
 
 /// LOAD R, addr: Loads a value from memory address `addr` into register R.
@@ -196,18 +201,11 @@ fn cmp(vm: &mut VM) {
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
 
-    vm.cf = false;
-    vm.zf = false;
+    let val1 = vm.get_reg(r_1) as u8;
+    let val2 = vm.get_reg(r_2) as u8;
 
-    let val1 = vm.registers[r_1] as u8;
-    let val2 = vm.registers[r_2] as u8;
-
-    if val1 < val2 {
-        vm.cf = true;
-    }
-    if val1 == val2 {
-        vm.zf = true;
-    }
+    vm.zf = val1 == val2;
+    vm.cf = val1 < val2;
 }
 
 /// BEQ addr: Branch to `addr` if the Zero Flag (ZF) is set.
@@ -356,7 +354,7 @@ fn loadr(vm: &mut VM) {
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
 
-    let target_address = (vm.registers[r_2] as usize) & 0xFF;
+    let target_address = (vm.get_reg(r_2) as usize) & 0xFF;
     vm.registers[r_1] = vm.get_mem(target_address) as i8;
 }
 
@@ -367,8 +365,8 @@ fn storer(vm: &mut VM) {
     let r_2 = vm.get_mem(vm.counter) as usize;
     vm.counter += 1;
 
-    let target_address = (vm.registers[r_2] as usize) & 0xFF;
-    vm.memory[target_address] = vm.registers[r_1] as u8;
+    let target_address = (vm.get_reg(r_2) as usize) & 0xFF;
+    vm.memory[target_address] = vm.get_reg(r_1) as u8;
 }
 
 fn sleep(vm: &mut VM) {
