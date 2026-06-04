@@ -1,10 +1,11 @@
 plugins {
     kotlin("jvm") version "2.3.21"
     kotlin("plugin.serialization") version "2.3.21"
+    `maven-publish`
 }
 
 group = "io.jadie"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -20,6 +21,11 @@ dependencies {
 
 kotlin {
     jvmToolchain(25)
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.test {
@@ -97,4 +103,34 @@ val buildNative by tasks.registering {
 
 tasks.processResources {
     dependsOn(buildNative)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            groupId = "com.github.Jadiefication"
+            artifactId = "uzyi"
+            version = project.version.toString()
+
+            pom {
+                name = "Uzyi Virtual Machine"
+                description = "A custom virtual machine and instruction set architecture (ISA) developed in Rust with a Kotlin DSL assembler."
+                url = "https://github.com/Jadiefication/Uzyi"
+                licenses {
+                    license {
+                        name = "The MIT License"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "Jadiefication"
+                        name = "Jadie"
+                    }
+                }
+            }
+        }
+    }
 }
