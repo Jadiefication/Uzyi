@@ -1,18 +1,13 @@
 package io.jadie
 
 import io.jadie.asm.assemble
+import org.junit.jupiter.api.BeforeAll
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import java.io.File
 import kotlin.experimental.inv
 
 class VMTest {
-
-    init {
-        // Force load the library from the target directory
-        val libPath = File("../target/debug/libUzyi.dylib").absolutePath
-        System.load(libPath)
-    }
 
     @Test
     fun testSimpleScript() {
