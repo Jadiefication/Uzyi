@@ -104,6 +104,25 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_stepVM<'caller>(
 }
 
 #[unsafe(no_mangle)]
+pub unsafe extern "system" fn Java_io_jadie_VMLoader_getState<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass,
+    vmPointer: jlong,
+) -> JObject<'caller> {
+    unowned_env
+        .with_env(|env| -> jni::errors::Result<JObject> {
+            let raw_pointer = vmPointer as *mut VM;
+
+            let vm: &mut VM = unsafe {
+                assert!(!raw_pointer.is_null(), "Passed a null VM pointer from Kotlin!");
+                &mut *raw_pointer
+            };
+
+            return create_state(vm, env)
+        }).resolve::<ThrowRuntimeExAndDefault>()
+}
+
+#[unsafe(no_mangle)]
 pub unsafe extern "system" fn Java_io_jadie_VMLoader_freeVM(
     _unowned_env: EnvUnowned,
     _class: JClass,

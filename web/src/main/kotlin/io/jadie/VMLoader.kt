@@ -6,6 +6,9 @@ class VMLoader {
         external fun runVM(vmPointer: Long): VMState
 
         @JvmStatic
+        external fun getState(vmPointer: Long): VMState
+
+        @JvmStatic
         external fun createVM(opcodes: ByteArray): Long
 
         @JvmStatic
