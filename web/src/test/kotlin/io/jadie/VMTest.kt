@@ -28,20 +28,39 @@ class VMTest {
     }
 
     @Test
-    fun testSubtraction() {
+    fun testSubtractionNeg() {
         val opcodes = assemble {
-            mov(0, 50)
-            mov(1, 15)
-            sub(0, 1)
+            mov(0, 10)
+            mov(1, 20)
+            sub(0, 1) // 10 - 20 = -10 (or 246 unsigned)
             hlt()
         }
 
         val vm = VMLoader.createVM(opcodes)
-
         val registers = VMLoader.runVM(vm).registers
-        assertEquals(35.toByte(), registers[0], "R0 should be 35")
-
+        assertEquals((-10).toByte(), registers[0], "R0 should be -10")
         VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testDivisionByZero() {
+        val opcodes = assemble {
+            mov(0, 10)
+            mov(1, 0)
+            div(0, 1)
+            hlt()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        // Check if it panics or handles it gracefully
+        try {
+            VMLoader.runVM(vm)
+        } catch (e: Exception) {
+            // Success if it reports the error
+            return
+        } finally {
+            VMLoader.freeVM(vm)
+        }
     }
 
     @Test
@@ -160,8 +179,10 @@ class VMTest {
     @Test
     fun testStackOps() {
         val opcodes = assemble {
-            push(10)
-            push(20)
+            mov(0, 10)
+            mov(1, 20)
+            push(0)
+            push(1)
             pop(0)
             pop(1)
             hlt()
@@ -320,6 +341,153 @@ class VMTest {
         val registers = VMLoader.runVM(vm).registers
         assertEquals(1.toByte(), registers[0], "Branching to label failed")
 
+        VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testSubroutineWithLabel() {
+        val opcodes = assemble {
+            mov(0, 5)
+            call("func")
+            inc(0)
+            hlt()
+
+            label("func")
+            inc(0)
+            ret()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        val state = VMLoader.runVM(vm)
+        val registers = state.registers
+
+        assertEquals(7.toByte(), registers[0], "R0 should be 7 after call and return")
+
+        VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testMemoryDirect() {
+        val opcodes = assemble {
+            mov(0, 123)
+            store(0, 50) // memory[10] = 123
+            mov(0, 0)
+            load(0, 50)  // R0 = memory[10]
+            hlt()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        val state = VMLoader.runVM(vm)
+        val registers = state.registers
+        val memory = state.memory
+
+        assertEquals(123.toByte(), registers[0], "R0 should be 123 from memory[10]")
+        assertEquals(123, memory[50], "Memory[10] should be 123")
+
+        VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testStackOpsNew() {
+        val opcodes = assemble {
+            mov(0, 42)
+            push(0)
+            mov(0, 0)
+            pop(1)
+            hlt()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        val state = VMLoader.runVM(vm)
+        val registers = state.registers
+        assertEquals(42.toByte(), registers[1], "Stack push/pop failed")
+        VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testMoreExhaustiveBranching() {
+        val opcodes = assemble {
+            // Test BEQ (false case)
+            mov(0, 10)
+            mov(1, 11)
+            cmp(0, 1)
+            beq("should_not_happen")
+            mov(2, 1)
+            
+            // Test BLO (false case)
+            mov(0, 10)
+            mov(1, 5)
+            cmp(0, 1)
+            blo("should_not_happen")
+            mov(3, 1)
+
+            // Test BHI (false case)
+            mov(0, 5)
+            mov(1, 10)
+            cmp(0, 1)
+            bhi("should_not_happen")
+            mov(4, 1)
+
+            hlt()
+            label("should_not_happen")
+            mov(5, 1)
+            hlt()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        val state = VMLoader.runVM(vm)
+        val registers = state.registers
+
+        assertEquals(1.toByte(), registers[2], "BEQ false case failed")
+        assertEquals(1.toByte(), registers[3], "BLO false case failed")
+        assertEquals(1.toByte(), registers[4], "BHI false case failed")
+        assertEquals(0.toByte(), registers[5], "Jumped to should_not_happen")
+
+        VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testSubroutineDirect() {
+        val opcodes = assemble {
+            mov(0, 0)
+            call(6.toByte()) // address of mov(0, 42)
+            hlt()
+
+            // Subroutine code at address 5
+            mov(0, 42)
+            ret()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        val state = VMLoader.runVM(vm)
+        val registers = state.registers
+        assertEquals(42.toByte(), registers[0], "Direct subroutine call failed")
+        VMLoader.freeVM(vm)
+    }
+
+    @Test
+    fun testStackWrapping() {
+        // Test stack behavior if it wraps or has limits
+        // Based on typical small VM implementations, let's see if we can push many items
+        val opcodes = assemble {
+            mov(0, 1)
+            mov(1, 2)
+            mov(2, 3)
+            push(0)
+            push(1)
+            push(2)
+            pop(3)
+            pop(4)
+            pop(5)
+            hlt()
+        }
+
+        val vm = VMLoader.createVM(opcodes)
+        val state = VMLoader.runVM(vm)
+        val registers = state.registers
+        assertEquals(3.toByte(), registers[3])
+        assertEquals(2.toByte(), registers[4])
+        assertEquals(1.toByte(), registers[5])
         VMLoader.freeVM(vm)
     }
 

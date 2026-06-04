@@ -230,10 +230,10 @@ data class Asm(
     }
 
     /**
-     * PUSH value: Pushes an immediate value onto the stack.
+     * PUSH value: Pushes a value from the register onto the stack.
      */
-    infix fun push(value: Byte) {
-        data.addAll(listOf(0x17, value))
+    infix fun push(register: Byte) {
+        data.addAll(listOf(0x17, register))
     }
 
     /**
@@ -248,6 +248,14 @@ data class Asm(
      */
     infix fun call(address: Byte) {
         data.addAll(listOf(0x19, address))
+    }
+
+    /**
+     * CALL label: Pushes next instruction address and branches to [label].
+     */
+    infix fun call(label: String) {
+        data.addAll(listOf(0x19, 0x0))
+        fRegistry.add(FixUp(label, currentAddress() - 1))
     }
 
     /**

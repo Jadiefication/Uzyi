@@ -284,9 +284,9 @@ fn push(vm: &mut VM) {
     if (vm.get_reg(7) as usize) & 0xFF == vm.memory.len() + 1 {
         panic!("VM close to instructions")
     }
-    let value = vm.get_mem(vm.counter);
+    let register = vm.get_mem(vm.counter);
     vm.counter += 1;
-    vm.memory[(vm.get_reg(7) as usize) & 0xFF] = value;
+    vm.memory[(vm.get_reg(7) as usize) & 0xFF] = vm.get_reg(register as usize) as u8;
     vm.registers[7] -= 1;
 }
 
@@ -298,7 +298,7 @@ fn pop(vm: &mut VM) {
     let register = vm.get_mem(vm.counter);
     vm.counter += 1;
     vm.registers[7] += 1;
-    vm.registers[register as usize] = vm.get_mem((vm.get_reg(7) as usize) & 0xFF) as i8;
+    vm.registers[register as usize] = vm.memory[(vm.get_reg(7) as usize) & 0xFF] as i8;
 }
 
 /// CALL addr: Pushes the next instruction address and branches to `addr`.

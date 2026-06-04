@@ -28,6 +28,7 @@ tasks.test {
 val nativeResourceDir = layout.projectDirectory.dir("src/main/resources/native")
 
 val buildNative by tasks.registering {
+    description = ""
     doLast {
         val os = System.getProperty("os.name").lowercase()
         val targets = if (System.getenv("JITPACK") == "true") {
@@ -48,6 +49,7 @@ val buildNative by tasks.registering {
             
             val processBuilder = ProcessBuilder(targetArgs)
             processBuilder.directory(File(".."))
+            processBuilder.redirectErrorStream(true)
             processBuilder.inheritIO()
             val process = processBuilder.start()
             val exitCode = process.waitFor()
