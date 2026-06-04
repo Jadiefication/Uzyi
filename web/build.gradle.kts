@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.jadie"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
     mavenCentral()
@@ -35,18 +35,16 @@ tasks.test {
 val nativeResourceDir = layout.projectDirectory.dir("src/main/resources/native")
 
 val buildNative by tasks.registering {
-    description = "Build the Rust native library and copy it into resources/native. On JitPack (Linux), cross-builds Linux and Windows targets."
+    description = "Build the Rust native library and copy it into resources/native."
     doLast {
         val isJitpack = System.getenv("JITPACK") == "true"
         val os = System.getProperty("os.name").lowercase()
-        // Only attempt cross builds on Linux (JitPack). On local/mac/windows only build host to avoid toolchain errors (exit code 101)
+
+        // Match only the native Linux target on JitPack.
         val targets = if (isJitpack && os.contains("linux")) {
-            listOf(
-                "x86_64-unknown-linux-gnu",
-                "x86_64-pc-windows-gnu"
-            )
+            listOf("x86_64-unknown-linux-gnu")
         } else {
-            listOf("")
+            listOf("") // Standard local compilation
         }
 
         fun runCommand(vararg cmd: String) {
@@ -59,14 +57,12 @@ val buildNative by tasks.registering {
             if (code != 0) throw GradleException("Command failed: ${cmd.joinToString(" ")} (exit $code)")
         }
 
-        // Ensure required Rust targets exist on JitPack before building
+        // Setup the target array cleanly
         if (isJitpack && os.contains("linux")) {
-            listOf("x86_64-unknown-linux-gnu", "x86_64-pc-windows-gnu").forEach { t ->
-                try {
-                    runCommand("rustup", "target", "add", t)
-                } catch (e: Exception) {
-                    logger.warn("Failed to add Rust target $t: ${e.message}. Continuing may fail if toolchain is missing.")
-                }
+            try {
+                runCommand("rustup", "target", "add", "x86_64-unknown-linux-gnu")
+            } catch (e: Exception) {
+                logger.warn("Failed to add Rust target: ${e.message}")
             }
         }
 
