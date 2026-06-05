@@ -4,20 +4,22 @@ import io.jadie.VMLoader
 import io.jadie.VMState
 import io.jadie.asm.assemble
 import org.junit.jupiter.api.Test
-import javax.script.ScriptEngineManager
 import java.io.File
+import javax.script.ScriptEngineManager
 import kotlin.test.assertEquals
 
 class ExamplesTest {
-
     private fun runExample(fileName: String): VMState {
         val file = File("src/examples/$fileName")
         val script = file.readText()
 
         val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
-        val opcodes = engine.eval("import io.jadie.asm.*" +
-                "assemble { $script }") as ByteArray
+        val opcodes =
+            engine.eval(
+                "import io.jadie.asm.*" +
+                    "assemble { $script }",
+            ) as ByteArray
 
         val vm = VMLoader.createVM(opcodes)
         val state = VMLoader.runVM(vm)

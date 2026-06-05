@@ -1,8 +1,11 @@
-use crate::instructions::{ADD, ADDI, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, LOADR, MOV, MOVR, MUL, MULI, NOT, OR, POP, PUSH, RET, SHL, SHR, SLEEP, STORE, STORER, SUB, SUBI, XOR};
+use crate::instructions::{
+    ADD, ADDI, AND, B, BEQ, BHEQ, BHI, BLEQ, BLO, CALL, CMP, DEC, DIV, HLT, INC, LOAD, LOADR, MOV,
+    MOVR, MUL, MULI, NOT, OR, POP, PUSH, RET, SHL, SHR, SLEEP, STORE, STORER, SUB, SUBI, XOR,
+};
+use crate::status::Status;
 use crate::vm::VM;
 use std::sync::LazyLock;
 use std::time::Duration;
-use crate::status::Status;
 
 fn empty(_vm: &mut VM) {}
 
@@ -375,8 +378,11 @@ fn sleep(vm: &mut VM) {
     let low_byte = vm.get_mem(vm.counter) as u64;
     vm.counter += 1;
     vm.status = Status::Sleeping(
-        vm.start_time.elapsed().unwrap_or(Duration::new(0, 0)).as_millis() as u64
-            + ((high_byte << 8) | low_byte)
+        vm.start_time
+            .elapsed()
+            .unwrap_or(Duration::new(0, 0))
+            .as_millis() as u64
+            + ((high_byte << 8) | low_byte),
     )
 }
 

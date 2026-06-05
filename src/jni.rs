@@ -2,7 +2,7 @@ use crate::vm::VM;
 use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::{JByteArray, JClass, JObject};
 use jni::sys::jlong;
-use jni::{jni_sig, jni_str, Env, EnvUnowned, JValue};
+use jni::{Env, EnvUnowned, JValue, jni_sig, jni_str};
 
 /// Builds a Kotlin/Java `io.jadie.VMState` instance from a native [`VM`] snapshot.
 fn create_state<'caller>(vm: &VM, env: &mut Env<'caller>) -> jni::errors::Result<JObject<'caller>> {
@@ -25,8 +25,8 @@ fn create_state<'caller>(vm: &VM, env: &mut Env<'caller>) -> jni::errors::Result
             JValue::Bool(vm.cf),
             JValue::Bool(vm.zf),
             JValue::Int(vm.cycles as i32),
-            JValue::Object(&j_memory)
-        ]
+            JValue::Object(&j_memory),
+        ],
     )?;
 
     Ok(val)
@@ -55,14 +55,18 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_runVM<'caller>(
             let raw_pointer = vmPointer as *mut VM;
 
             let vm: &mut VM = unsafe {
-                assert!(!raw_pointer.is_null(), "Passed a null VM pointer from Kotlin!");
+                assert!(
+                    !raw_pointer.is_null(),
+                    "Passed a null VM pointer from Kotlin!"
+                );
                 &mut *raw_pointer
             };
 
             vm.run();
 
-            return create_state(vm, env)
-        }).resolve::<ThrowRuntimeExAndDefault>()
+            return create_state(vm, env);
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 /**
@@ -88,10 +92,11 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_createVM<'caller>(
                 let box_vm = Box::new(vm);
                 let raw: *mut VM = Box::into_raw(box_vm);
 
-                return Ok(raw as i64)
+                return Ok(raw as i64);
             }
             panic!("Opcodes could not be converted!")
-        }).resolve::<ThrowRuntimeExAndDefault>()
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 /**
@@ -110,14 +115,18 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_stepVM<'caller>(
             let raw_pointer = vmPointer as *mut VM;
 
             let vm: &mut VM = unsafe {
-                assert!(!raw_pointer.is_null(), "Passed a null VM pointer from Kotlin!");
+                assert!(
+                    !raw_pointer.is_null(),
+                    "Passed a null VM pointer from Kotlin!"
+                );
                 &mut *raw_pointer
             };
 
             vm.step();
 
-            return create_state(vm, env)
-        }).resolve::<ThrowRuntimeExAndDefault>()
+            return create_state(vm, env);
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 /**
@@ -136,12 +145,16 @@ pub unsafe extern "system" fn Java_io_jadie_VMLoader_getState<'caller>(
             let raw_pointer = vmPointer as *mut VM;
 
             let vm: &mut VM = unsafe {
-                assert!(!raw_pointer.is_null(), "Passed a null VM pointer from Kotlin!");
+                assert!(
+                    !raw_pointer.is_null(),
+                    "Passed a null VM pointer from Kotlin!"
+                );
                 &mut *raw_pointer
             };
 
-            return create_state(vm, env)
-        }).resolve::<ThrowRuntimeExAndDefault>()
+            return create_state(vm, env);
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 /**

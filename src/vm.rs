@@ -33,7 +33,7 @@ pub struct VM {
     /// Time when the VM instance started (used by `sleep` and timing SYS reads).
     pub start_time: SystemTime,
     /// Number of executed cycles (exposed via SYS address 0xFC as an 8-bit value).
-    pub cycles: usize
+    pub cycles: usize,
 }
 
 impl VM {
@@ -52,7 +52,7 @@ impl VM {
             cf: false,
             zf: false,
             start_time: SystemTime::now(),
-            cycles: 0
+            cycles: 0,
         }
     }
 
@@ -62,13 +62,15 @@ impl VM {
     /// - If `Sleeping(until)`, yields if current time is before `until`, otherwise resumes `Running`.
     /// - Otherwise, fetch-decodes-executes one instruction and increments `cycles`.
     pub fn step(&mut self) -> Result<(), SystemTimeError> {
-        if self.status == Status::Stopped { return Ok(()); }
+        if self.status == Status::Stopped {
+            return Ok(());
+        }
         if let Status::Sleeping(wake_at) = self.status {
             if self.start_time.elapsed()? >= Duration::from_millis(wake_at) {
                 self.status = Running;
             } else {
                 std::thread::yield_now();
-                return Ok(())
+                return Ok(());
             }
         }
 
@@ -110,7 +112,10 @@ impl VM {
         } else if index == 0xFC {
             self.cycles as u8
         } else if index == 0xFD {
-            self.start_time.elapsed().unwrap_or(Duration::new(0, 0)).as_micros() as u8
+            self.start_time
+                .elapsed()
+                .unwrap_or(Duration::new(0, 0))
+                .as_micros() as u8
         } else {
             self.memory[index]
         }
@@ -121,5 +126,4 @@ impl VM {
     pub fn get_reg(&self, index: usize) -> i8 {
         self.registers[index]
     }
-
 }

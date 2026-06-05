@@ -21,7 +21,7 @@ data class VMState(
     val cf: Boolean,
     val zf: Boolean,
     val cycles: Int,
-    val memory: IntArray
+    val memory: IntArray,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

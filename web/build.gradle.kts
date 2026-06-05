@@ -41,11 +41,12 @@ val buildNative by tasks.registering {
         val os = System.getProperty("os.name").lowercase()
 
         // Match only the native Linux target on JitPack.
-        val targets = if (isJitpack && os.contains("linux")) {
-            listOf("x86_64-unknown-linux-gnu")
-        } else {
-            listOf("") // Standard local compilation
-        }
+        val targets =
+            if (isJitpack && os.contains("linux")) {
+                listOf("x86_64-unknown-linux-gnu")
+            } else {
+                listOf("") // Standard local compilation
+            }
 
         fun runCommand(vararg cmd: String) {
             val pb = ProcessBuilder(*cmd)
@@ -75,11 +76,12 @@ val buildNative by tasks.registering {
 
             runCommand(*targetArgs.toTypedArray())
 
-            val (prefix, suffix) = when {
-                target.contains("windows") || (target.isEmpty() && os.contains("win")) -> "" to ".dll"
-                target.contains("apple") || target.contains("darwin") || (target.isEmpty() && os.contains("mac")) -> "lib" to ".dylib"
-                else -> "lib" to ".so"
-            }
+            val (prefix, suffix) =
+                when {
+                    target.contains("windows") || (target.isEmpty() && os.contains("win")) -> "" to ".dll"
+                    target.contains("apple") || target.contains("darwin") || (target.isEmpty() && os.contains("mac")) -> "lib" to ".dylib"
+                    else -> "lib" to ".so"
+                }
 
             val builtLibName = "${prefix}Uzyi$suffix"
             val targetDir = if (target.isNotEmpty()) "../target/$target/release" else "../target/release"
@@ -112,7 +114,8 @@ publishing {
 
             pom {
                 name = "Uzyi Virtual Machine"
-                description = "A custom virtual machine and instruction set architecture (ISA) developed in Rust with a Kotlin DSL assembler."
+                description =
+                    "A custom virtual machine and instruction set architecture (ISA) developed in Rust with a Kotlin DSL assembler."
                 url = "https://github.com/Jadiefication/Uzyi"
                 licenses {
                     license {

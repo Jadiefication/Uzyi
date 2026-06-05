@@ -7,51 +7,68 @@ const val SYS_TIME = 0xFD.toByte()
  * The [Asm] class provides a DSL for generating Uzyi bytecode.
  */
 data class Asm(
-    val data: MutableList<Byte>
+    val data: MutableList<Byte>,
 ) {
-
     val lRegistry = mutableMapOf<String, Int>()
     val fRegistry = mutableListOf<FixUp>()
 
     /**
      * MOV register, value: Loads an immediate value into a register.
      */
-    fun mov(register: Byte, value: Byte) {
+    fun mov(
+        register: Byte,
+        value: Byte,
+    ) {
         data.addAll(listOf(0x00, register, value))
     }
 
     /**
      * MOVR fRegister, sRegister: Copies the value from sRegister to fRegister.
      */
-    fun movr(fRegister: Byte, sRegister: Byte) {
+    fun movr(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x01, fRegister, sRegister))
     }
 
     /**
      * ADD fRegister, sRegister: Adds sRegister to fRegister.
      */
-    fun add(fRegister: Byte, sRegister: Byte) {
+    fun add(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x02, fRegister, sRegister))
     }
 
     /**
      * SUB fRegister, sRegister: Subtracts sRegister from fRegister.
      */
-    fun sub(fRegister: Byte, sRegister: Byte) {
+    fun sub(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x03, fRegister, sRegister))
     }
 
     /**
      * MUL fRegister, sRegister: Multiplies fRegister by sRegister.
      */
-    fun mul(fRegister: Byte, sRegister: Byte) {
+    fun mul(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x04, fRegister, sRegister))
     }
 
     /**
      * DIV fRegister, sRegister: Divides fRegister by sRegister.
      */
-    fun div(fRegister: Byte, sRegister: Byte) {
+    fun div(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x05, fRegister, sRegister))
     }
 
@@ -72,14 +89,20 @@ data class Asm(
     /**
      * AND fRegister, sRegister: Bitwise AND of fRegister and sRegister.
      */
-    fun and(fRegister: Byte, sRegister: Byte) {
+    fun and(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x08, fRegister, sRegister))
     }
 
     /**
      * OR fRegister, sRegister: Bitwise OR of fRegister and sRegister.
      */
-    fun or(fRegister: Byte, sRegister: Byte) {
+    fun or(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x09, fRegister, sRegister))
     }
 
@@ -93,7 +116,10 @@ data class Asm(
     /**
      * XOR fRegister, sRegister: Bitwise XOR of fRegister and sRegister.
      */
-    fun xor(fRegister: Byte, sRegister: Byte) {
+    fun xor(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x0B, fRegister, sRegister))
     }
 
@@ -114,21 +140,30 @@ data class Asm(
     /**
      * LOAD register, address: Loads a value from memory at [address] into [register].
      */
-    fun load(register: Byte, address: Byte) {
+    fun load(
+        register: Byte,
+        address: Byte,
+    ) {
         data.addAll(listOf(0x0E, register, address))
     }
 
     /**
      * STORE register, address: Stores the value of [register] into memory at [address].
      */
-    fun store(register: Byte, address: Byte) {
+    fun store(
+        register: Byte,
+        address: Byte,
+    ) {
         data.addAll(listOf(0x0F, register, address))
     }
 
     /**
      * CMP fRegister, sRegister: Compares fRegister and sRegister, setting flags.
      */
-    fun cmp(fRegister: Byte, sRegister: Byte) {
+    fun cmp(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x10, fRegister, sRegister))
     }
 
@@ -268,42 +303,55 @@ data class Asm(
     /**
      * ADDI register, value: Adds an immediate value to the register.
      */
-    fun addi(register: Byte, value: Byte) {
+    fun addi(
+        register: Byte,
+        value: Byte,
+    ) {
         data.addAll(listOf(0x1B, register, value))
     }
 
     /**
      * SUBI register, value: Subtracts an immediate value from the register.
      */
-    fun subi(register: Byte, value: Byte) {
+    fun subi(
+        register: Byte,
+        value: Byte,
+    ) {
         data.addAll(listOf(0x1C, register, value))
     }
 
     /**
      * MULI register, value: Multiplies the register by an immediate value.
      */
-    fun muli(register: Byte, value: Byte) {
+    fun muli(
+        register: Byte,
+        value: Byte,
+    ) {
         data.addAll(listOf(0x1D, register, value))
     }
 
     /**
      * Returns the current bytecode size (current address).
      */
-    fun currentAddress(): Int {
-        return data.size
-    }
+    fun currentAddress(): Int = data.size
 
     /**
      * LOADR fRegister, sRegister: Loads from address in sRegister into fRegister.
      */
-    fun loadr(fRegister: Byte, sRegister: Byte) {
+    fun loadr(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x1E, fRegister, sRegister))
     }
 
     /**
      * STORER fRegister, sRegister: Stores fRegister into address in sRegister.
      */
-    fun storer(fRegister: Byte, sRegister: Byte) {
+    fun storer(
+        fRegister: Byte,
+        sRegister: Byte,
+    ) {
         data.addAll(listOf(0x1F, fRegister, sRegister))
     }
 
@@ -314,7 +362,10 @@ data class Asm(
         lRegistry[name] = currentAddress()
     }
 
-    fun sleep(highByte: Byte, lowByte: Byte) {
+    fun sleep(
+        highByte: Byte,
+        lowByte: Byte,
+    ) {
         data.addAll(listOf(0x20, highByte, lowByte))
     }
 }
