@@ -18,7 +18,7 @@ Computes the n-th Fibonacci number.
 
 ## How to Run
 
-These examples are automatically picked up and verified by the test suite. To run them, execute the following from the `web` directory:
+These examples are automatically picked up and verified by the test suite. To run them, execute the following from the `dsl` directory:
 
 ```bash
 ./gradlew test --tests "io.jadie.examples.ExamplesTest"

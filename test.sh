@@ -2,6 +2,6 @@
 
  cargo build
  # shellcheck disable=SC2164
- cd web
+ cd dsl
 
  ./gradlew test

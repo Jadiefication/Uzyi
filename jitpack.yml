@@ -7,4 +7,4 @@ before_install:
   - rustup target add x86_64-unknown-linux-gnu
 
 install:
-  - cd web && ./gradlew publishToMavenLocal
+  - cd dsl && ./gradlew publishToMavenLocal

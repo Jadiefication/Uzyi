@@ -52,8 +52,8 @@ A traditional "Demo URL" (like a hosted website) is not feasible for Uzyi becaus
 
 To see Uzyi in action, you can:
 - **Check the CI/CD Pipeline:** Our [JitPack integration](https://jitpack.io/#Jadiefication/Uzyi) proves the project builds and bundles for multiple operating systems.
-- **Run the Tests:** The comprehensive test suite in `web/src/test/kotlin/io/jadie/VMTest.kt` acts as a living demonstration of every instruction and VM capability.
-- **Look at the Code:** The `web` module demonstrates how to use the Kotlin DSL to generate and execute bytecode on the fly.
+- **Run the Tests:** The comprehensive test suite in `dsl/src/test/kotlin/io/jadie/VMTest.kt` acts as a living demonstration of every instruction and VM capability.
+- **Look at the Code:** The `dsl` module demonstrates how to use the Kotlin DSL to generate and execute bytecode on the fly.
 
 ## Getting Started
 
@@ -78,9 +78,9 @@ If you want to run Uzyi locally and experiment with the ISA:
    ```
 
 3. **Run the Kotlin environment:**
-   Move to the `web` directory and run the tests to verify everything is linked correctly.
+   Move to the `dsl` directory and run the tests to verify everything is linked correctly.
    ```bash
-   cd web
+   cd dsl
    ./gradlew test
    ```
 
@@ -99,9 +99,9 @@ If you want to run Uzyi locally and experiment with the ISA:
 
 You can find runnable, real-world examples written in the Uzyi assembly language inside the `src/examples/` directory. These files demonstrate the expressiveness of the architecture and are evaluated dynamically at runtime by our script-engine testing framework:
 
-- [**array_sum.uzyi**](web/src/examples/array_sum.uzyi): Allocates an array in memory, populates data blocks, iterates through elements using register pointers (`loadr`), and sums values into an accumulator.
-- [**factorial.uzyi**](web/src/examples/factorial.uzyi): Implements basic loop counters and multiplicative wrapping arithmetic to calculate values like `5!`.
-- [**fibonacci.uzyi**](web/src/examples/fibonacci.uzyi): Tracks sequence state and shifts variables dynamically to compute the $n$-th Fibonacci sequence number.
+- [**array_sum.uzyi**](dsl/src/examples/array_sum.uzyi): Allocates an array in memory, populates data blocks, iterates through elements using register pointers (`loadr`), and sums values into an accumulator.
+- [**factorial.uzyi**](dsl/src/examples/factorial.uzyi): Implements basic loop counters and multiplicative wrapping arithmetic to calculate values like `5!`.
+- [**fibonacci.uzyi**](dsl/src/examples/fibonacci.uzyi): Tracks sequence state and shifts variables dynamically to compute the $n$-th Fibonacci sequence number.
 
 These examples serve as both structural documentation for writing your own programs and living test cases for the execution lifecycle within `ExamplesTest.kt`.
 
@@ -131,7 +131,7 @@ The project uses Cargo and Gradle for common tasks:
 
 - `cargo build`: Build the Rust VM.
 - `cargo test`: Run Rust tests.
-- `./gradlew build`: Build the Kotlin assembler (in `web/` directory).
+- `./gradlew build`: Build the Kotlin assembler (in `dsl/` directory).
 - `cargo fmt`: Format the codebase.
 
 ## Principles

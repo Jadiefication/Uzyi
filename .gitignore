@@ -1,6 +1,6 @@
 /target
-web/.gradle
+dsl/.gradle
 .idea
-web/.idea
-web/.kotlin
-web/build
+dsl/.idea
+dsl/.kotlin
+dsl/build
