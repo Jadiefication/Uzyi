@@ -2,7 +2,7 @@
 
   <img alt="Uzyi logo" src=".github/logo.svg" width="160" height="160" />
   <h1>Uzyi</h1>
-  <p>A custom virtual machine and instruction set architecture (ISA) developed in Rust, featuring a Kotlin-based assembler.</p>
+  <p>A custom emulation machine based on a custom instruction set(ISA) with a Rust backend</p>
 
   <p>
     <a href="https://crates.io/crates/uzyi"><img alt="Crates.io" src="https://img.shields.io/crates/v/uzyi.svg"></a>
@@ -11,12 +11,12 @@
   </p>
 </div>
 
-Uzyi is a small, unopinionated virtual machine you can embed into your Rust or Java/Kotlin apps via JNI. It provides:
+Uzyi is a small embeddable emulation library which can be used in almost any JVM environment, as long as rust works on the platform. It provides:
 
-- **Custom ISA**: A simple and extensible instruction set.
-- **Virtual Machine**: Efficient execution of bytecode with a stack and registers.
-- **JNI Integration**: Seamlessly call the VM from Java/Kotlin environments.
-- **Kotlin Assembler**: A DSL-based assembler for writing Uzyi bytecode easily.
+- **Custom ISA**: An easy-to-use ISA with a small amount of instructions.
+- **Emulation Machine**: Fast execution of the loaded instructions.
+- **JNI Integration**: Interop with the emulator through external Kotlin methods.
+- **Kotlin Assembler**: A DSL-based assembler collapsing to a list of opcodes.
 
 Quick links
 
@@ -29,35 +29,35 @@ Quick links
 
 ## About the Project
 
-Uzyi is a custom-built 8-bit virtual machine (VM) and instruction set architecture (ISA) designed for educational purposes and embedding in high-level applications. It features a core written in Rust for performance and safety, and a versatile assembler written in Kotlin for developer productivity.
+Uzyi is a custom 8-bit emulation machine with its own ISA embeddable in high performance critical applications. It offers a Rust backend for executing the opcodes and a type-safe DSL on the Kotlin side.
 
 ### Why Uzyi?
-- **Hybrid Architecture:** Combines the low-level efficiency of Rust with the high-level expressiveness of Kotlin.
-- **Cross-Platform:** Bundles native binaries for Linux, Windows, and macOS, allowing it to run anywhere a JVM is available.
-- **Embedded by Design:** Small footprint makes it ideal for embedding as a scripting or specialized execution engine within larger applications.
+- **Hybrid Architecture:** Offers low-level speeds with the developer experience of writing Kotlin.
+- **Cross-Platform:** Compiles to many different platforms supported both by the JVM and Rust.
+- **Embedded by Design:** Is small by design therefore easily embeddable in almost any application.
 
 ### Limitations
-Uzyi is currently a research and hobbyist artifact and has the following limitations:
-- **8-bit Integers:** General-purpose registers and memory cells handle 8-bit signed/unsigned values (-128 to 127).
-- **Small Memory Space:** 256 bytes of total memory.
-- **Limited Register File:** 8 general-purpose registers (R0-R7), with R7 serving as the stack pointer.
-- **No Floating Point:** Arithmetic is limited to integer operations.
-- **Non-Standard Bytecode:** The ISA is custom and not compatible with any existing hardware.
+Through all that it claims to offer, Uzyi is a hobby project that has these limitations:
+- **8-bit Integers:** Registers can only handle i8 integers (-128 to 127).
+- **Small Memory Space:** 256 bytes of memory.
+- **Limited Register File:** 8 overall registers (R0-R7), with R7 being the Stack Pointer.
+- **No Floating Point:** Arithmetic calculations only account for integers.
+- **Non-Standard Bytecode:** No real-life hardware can actually run this ISA without using Uzyi.
 
 ## Demo & Real-World Proof
 
-A traditional "Demo URL" (like a hosted website) is not feasible for Uzyi because:
-1. It relies on **JNI (Java Native Interface)**, which requires native libraries (.so, .dll, .dylib) to be loaded by the operating system.
-2. The core logic is executed in a compiled Rust environment, not a browser-native environment like WebAssembly (though that is a potential future direction).
+A traditional Demo is not possible for Uzyi because:
+1. It works based on **JNI (Java Native Interface)**, which loads native libraries (.so, .dll, .dylib) and interacts with them.
+2. The project runs in Rust, not in a browser supported environment like WASM (though that is a potential future direction).
 
-To see Uzyi in action, you can:
-- **Check the CI/CD Pipeline:** Our [JitPack integration](https://jitpack.io/#Jadiefication/Uzyi) proves the project builds and bundles for multiple operating systems.
-- **Run the Tests:** The comprehensive test suite in `dsl/src/test/kotlin/io/jadie/VMTest.kt` acts as a living demonstration of every instruction and VM capability.
-- **Look at the Code:** The `dsl` module demonstrates how to use the Kotlin DSL to generate and execute bytecode on the fly.
+To try out Uzyi, you can:
+- **Check the CI/CD Pipeline:** Our [JitPack integration](https://jitpack.io/#Jadiefication/Uzyi) offers the actual library, with it then compiling to your specific environment.
+- **Run the Tests:** The comprehensive test suite in `dsl/src/test/kotlin/io/jadie/VMTest.kt` showcases how the emulator runs and that it works perfectly.
+- **Look at the Code:** The `dsl` module showcases how the DSL is actually written and used.
 
 ## Getting Started
 
-If you want to run Uzyi locally and experiment with the ISA:
+If you want to run Uzyi to try out the ISA:
 
 ### Prerequisites
 - [Rust 1.80+](https://rustup.rs/)
@@ -72,20 +72,20 @@ If you want to run Uzyi locally and experiment with the ISA:
    cd Uzyi
    ```
 
-2. **Build the native library:**
+2. **Build the native library for Kotlin:**
    ```bash
-   cargo build --release
+   cd dsl
+   ./gradlew :buildNative
    ```
 
 3. **Run the Kotlin environment:**
-   Move to the `dsl` directory and run the tests to verify everything is linked correctly.
+   Try to run the test to ensure everything works as expected.
    ```bash
-   cd dsl
    ./gradlew test
    ```
 
 4. **Using it in your own project:**
-   You can add Uzyi as a dependency via JitPack. Add this to your `build.gradle.kts`:
+   You can use Uzyi as a dependency through JitPack. Add this to your `build.gradle.kts`:
    ```kotlin
    repositories {
        maven { url = uri("https://jitpack.io") }
@@ -97,17 +97,17 @@ If you want to run Uzyi locally and experiment with the ISA:
 
 ## Code Examples & Programs
 
-You can find runnable, real-world examples written in the Uzyi assembly language inside the `src/examples/` directory. These files demonstrate the expressiveness of the architecture and are evaluated dynamically at runtime by our script-engine testing framework:
+To see runnable example you can check out the `src/examples/` directory. These files showcase how different mathematical phenomenons can be calculated in our ISA:
 
-- [**array_sum.uzyi**](dsl/src/examples/array_sum.uzyi): Allocates an array in memory, populates data blocks, iterates through elements using register pointers (`loadr`), and sums values into an accumulator.
-- [**factorial.uzyi**](dsl/src/examples/factorial.uzyi): Implements basic loop counters and multiplicative wrapping arithmetic to calculate values like `5!`.
-- [**fibonacci.uzyi**](dsl/src/examples/fibonacci.uzyi): Tracks sequence state and shifts variables dynamically to compute the $n$-th Fibonacci sequence number.
+- [**array_sum.uzyi**](dsl/src/examples/array_sum.uzyi): Defines an array in memory and populates it with numbers, it then iterates through the numbers and sums them up.
+- [**factorial.uzyi**](dsl/src/examples/factorial.uzyi): Showcases a basic loop counter with arithmetic methods to calculate the factorials like `5!`.
+- [**fibonacci.uzyi**](dsl/src/examples/fibonacci.uzyi): Focused on tracking the current state and shifting variable values to compute the $n$-th Fibonacci number.
 
-These examples serve as both structural documentation for writing your own programs and living test cases for the execution lifecycle within `ExamplesTest.kt`.
+You can use these examples both as documentation or motivation to experiment with the ISA for yourself to test out it's capabilities.
 
 ## ISA Overview
 
-The Uzyi ISA includes 32+ instructions covering:
+The Uzyi ISA includes 32+ instructions:
 - **Data Movement:** `mov`, `movr`, `push`, `pop`
 - **Arithmetic:** `add`, `sub`, `mul`, `div`, `inc`, `dec`, `addi`, `subi`, `muli`
 - **Logical:** `and`, `or`, `xor`, `not`, `shl`, `shr`
@@ -115,54 +115,52 @@ The Uzyi ISA includes 32+ instructions covering:
 - **Memory:** `load`, `store`, `loadr`, `storer`
 - **System:** `hlt`, `sleep`
 
-### Register File
+### Registers
 - **R0 - R6:** General-purpose 8-bit registers.
-- **R7:** Stack Pointer (SP). Initialized to 255 (top of memory).
+- **R7:** Stack Pointer (SP). It's value at start up is set to 255 (top of memory).
 
 ### Memory Map
-- **0x00 - 0xFB:** General-purpose RAM (Instructions are loaded starting at 0x00).
+- **0x00 - 0xFB:** General-purpose RAM (Instructions start at 0x00).
 - **0xFC:** Cycle counter (Read-only).
 - **0xFD:** Execution timer (Read-only).
 - **0xFE - 0xFF:** Reserved.
 
 ## Commands & Scripts
 
-The project uses Cargo and Gradle for common tasks:
+The project uses Cargo and Gradle as it's build tools:
 
-- `cargo build`: Build the Rust VM.
-- `cargo test`: Run Rust tests.
+- `cargo build`: Build the Rust emulator.
 - `./gradlew build`: Build the Kotlin assembler (in `dsl/` directory).
 - `cargo fmt`: Format the codebase.
 
 ## Principles
 
 #### Unopinionated
-Uzyi doesn’t force a particular architecture. It provides a simple VM core that can be adapted to various needs.
+Uzyi doesn't want to force you into anything, it just simply provides an emulator you can use to your liking.
 
 #### Performance
-Leverages Rust's performance and safety to provide a reliable execution environment.
+Uses Rust as it's language of choice for the backend to ensure safety and speed.
 
 #### Testable
-Every instruction and VM state transition is designed to be testable, ensuring correctness of the ISA implementation.
+Everything is designed to be testable, to make sure everything works and doesn't break at runtime.
 
 ## Documentation
 
-Core entry points:
+Starting points for learning about the code structure:
 
-- `uzyi::vm::VM` — The main virtual machine state.
+- `uzyi::vm::VM` — The main emulator state.
 - `uzyi::instructions::Instruction` — ISA definitions.
 - `io.jadie.asm.Asm` — Kotlin Assembler DSL.
 
 ## Testing
 
-The test suite is authoritative and aims for high coverage.
-- Run Rust tests: `cargo test`
+The test suit focuses on full coverage whilst maintaining easy-of-use.
 - Run Kotlin tests: `./gradlew test`
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Contributions are always welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT](LICENSE) — © 2025 Jadiefication
+[MIT](LICENSE) — © 2026 Jadiefication
