@@ -1,7 +1,14 @@
 [package]
-name = "cli"
+name = "uzyi-cli"
 version = "0.1.0"
 edition = "2024"
+authors = ["Jadiefication"]
+description = "A native CLI for the Uzyi emulation machine"
+license = "MIT"
+repository = "https://github.com/Jadiefication/Uzyi"
+readme = "../README.md"
+keywords = ["emulator", "vm", "isa", "cli"]
+categories = ["emulators", "command-line-utilities"]
 
 [dependencies]
 Uzyi = "0.1.5"

@@ -46,14 +46,35 @@ Through all that it claims to offer, Uzyi is a hobby project that has these limi
 
 ## Demo & Real-World Proof
 
-A traditional Demo is not possible for Uzyi because:
-1. It works based on **JNI (Java Native Interface)**, which loads native libraries (.so, .dll, .dylib) and interacts with them.
-2. The project runs in Rust, not in a browser supported environment like WASM (though that is a potential future direction).
+You can run Uzyi programs directly using our CLI. This allows you to run scripts that follow the Uzyi syntax.
 
-To try out Uzyi, you can:
-- **Check the CI/CD Pipeline:** Our [JitPack integration](https://jitpack.io/#Jadiefication/Uzyi) offers the actual library, with it then compiling to your specific environment.
-- **Run the Tests:** The comprehensive test suite in `dsl/src/test/kotlin/io/jadie/VMTest.kt` showcases how the emulator runs and that it works perfectly.
-- **Look at the Code:** The `dsl` module showcases how the DSL is actually written and used.
+### Running the CLI
+
+1. **Build the CLI:**
+   ```bash
+   cargo build --release
+   ```
+
+2. **Run an example script:**
+   ```bash
+   ./target/release/uzyi run dsl/src/examples/factorial.uzyi
+   ```
+
+You can find other examples in the `dsl/src/examples/` directory. Each example showcases different ways of how to utilize the ISA.
+
+### Using the Kotlin DSL (Alternative)
+
+If you prefer working in a JVM environment, you can still use the Kotlin DSL to assemble and run programs:
+
+1. **Build the native library:**
+   ```bash
+   ./gradlew :buildNative
+   ```
+
+2. **Run the tests/examples:**
+   ```bash
+   ./gradlew test
+   ```
 
 ## Getting Started
 
@@ -127,10 +148,11 @@ The Uzyi ISA includes 32+ instructions:
 
 ## Commands & Scripts
 
-The project uses Cargo and Gradle as it's build tools:
+The project uses Cargo and Gradle as its build tools:
 
-- `cargo build`: Build the Rust emulator.
-- `./gradlew build`: Build the Kotlin assembler (in `dsl/` directory).
+- `cargo run -- run <file.uzyi>`: Run a `.uzyi` script using the CLI.
+- `cargo build`: Build the Rust emulator and CLI.
+- `./gradlew build`: Build the Kotlin assembler.
 - `cargo fmt`: Format the codebase.
 
 ## Principles
