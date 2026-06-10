@@ -2,6 +2,13 @@
 name = "Uzyi"
 version = "0.1.5"
 edition = "2024"
+authors = ["Jadie <jadeczjade008@gmail.com>"]
+description = "An emulation rust backend, for a full library refer to Uzyi on Jitpack"
+license = "MIT" # Use standard SPDX identifiers
+repository = "https://github.com/Jadiefication/Uzyi"
+readme = "README.md"
+keywords = ["emulation", "isa", "assembly"]
+categories = ["emulators"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
