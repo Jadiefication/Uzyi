@@ -48,7 +48,15 @@ Through all that it claims to offer, Uzyi is a hobby project that has these limi
 
 You can run Uzyi programs directly using our CLI. This allows you to run scripts that follow the Uzyi syntax.
 
-### Running the CLI
+## Downloading the CLI
+
+In case you want to directly download the CLI, you can download it from Cargo:
+
+```bash
+cargo install uzyi-cli
+```
+
+### Cloning the CLI
 
 1. **Build the CLI:**
    ```bash
